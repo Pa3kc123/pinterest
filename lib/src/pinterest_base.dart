@@ -23,16 +23,11 @@ const String SCOPE_WRITE_RELATIONSHIPS = 'write_relationships';
 Future<PinData> getJsonPinData(String path, [List<FieldData> fields, int limit]) async {
   if (_accessToken == null) throw StateError('You need to set access token');
 
-  final Map<String, String> _fields = Map<String, String>();
-  _fields['access_token'] = _accessToken;
-
-  if (fields != null) {
-    _fields['fields'] = fields.join(',');
-  }
-
-  if (limit != null) {
-    _fields['limit'] = limit.toString();
-  }
+  final Map<String, String> _fields = <String, String>{
+    'access_token': _accessToken,
+    if (fields != null) 'fields': fields.join(','),
+    if (limit != null) 'limit': limit.toString()
+  };
 
   final Uri uri = Uri.https(PINTEREST_HOSTNAME, '/v$PINTEREST_API_VERSION$path', _fields);
   final HttpClient client = HttpClient();

@@ -60,7 +60,15 @@ class PinRootData extends PinData {
 }
 
 class SectionInfo {
-  const SectionInfo._();
+  final int id;
+
+  const SectionInfo._(this.id);
+
+  factory SectionInfo.fromString(String value) {
+    final String idString = value.substring(value.indexOf(' ') + 1, value.length - 1);
+
+    return SectionInfo._(int.tryParse(idString));
+  }
 }
 
 class BoardInfo {

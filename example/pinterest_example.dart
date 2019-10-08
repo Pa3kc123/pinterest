@@ -4,7 +4,7 @@ import 'package:pinterest/pinterest.dart' as pinterest;
 
 main() {
   pinterest.accessToken = 'AjdRdAK5so_p4LHYbdpe7q7HcLd5FcXT2lRXIJVGKq0eacCsVQhmwDAAAeYZRiq81gxAqssAAAAA';
-  pinterest.me.getMySuggestion().then((pinterest.PinResult<List<pinterest.BoardInfo>> result) {
+  pinterest.section.getSectionsFromBoard(null).then((pinterest.PinResult<List<pinterest.SectionInfo>> result) {
     if (result.errorOccured) {
       print(result.errorData.message);
 
@@ -13,16 +13,13 @@ main() {
         print(result.errorData.rateRemaining);
       }
     } else {
-      for (pinterest.BoardInfo board in result.successData) {
-        final StringBuffer buffer = StringBuffer();
+      final StringBuffer buffer = StringBuffer();
 
-        buffer.writeln('board.name = ${board.name}');
-        buffer.writeln('board.id = ${board.id}');
-        buffer.writeln('board.description = ${board.description}');
-        buffer.writeln('board.createdAt = ${board.createdAt}');
-
-        print(buffer);
+      for (pinterest.SectionInfo section in result.successData) {
+        buffer.writeln('section.id = ${section.id}');
       }
+
+      print(buffer);
     }
   });
 }
