@@ -11,6 +11,7 @@ const String PINTEREST_HOSTNAME = 'api.pinterest.com';
 const int PINTEREST_API_VERSION = 1;
 String _accessToken;
 
+const String READ_WRITE_ALL = 'read_write_all';
 //Use GET method on a user’s Pins, boards.
 const String SCOPE_READ_PUBLIC = 'read_public';
 //Use PATCH, POST and DELETE methods on a user’s Pins and boards.

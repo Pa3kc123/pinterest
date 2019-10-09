@@ -136,7 +136,7 @@ class Me {
   Future<PinResult<List<UserInfo>>> getMyFollowers({String cursor, List<FieldData> fields}) async {
     throw UnsupportedError('Not yet implemented');
 
-    filterFields(ME_GET_MY_FOLLOWERS_CODE, fields);
+    /*filterFields(ME_GET_MY_FOLLOWERS_CODE, fields);
 
     final PinData pinData = await getJsonPinData(PATH_ME_FOLLOWERS);
 
@@ -153,22 +153,39 @@ class Me {
       }
     } else {
       return PinResult.empty();
-    }
+    }*/
   }
 
-  List<BoardInfo> getFollwingBoards({
-    String cursor,
-    List<FieldData> fields
-  }) => throw UnsupportedError('Not yet implemented');
+  Future<PinResult<List<BoardInfo>>> getFollwingBoards({String cursor, List<FieldData> fields}) async {
+    throw UnsupportedError('Not yet implemented');
+
+    /*filterFields(ME_GET_MY_SUGGESTION_CODE, fields);
+
+    final PinData pinData = await getJsonPinData(PATH_ME_FOLLOWING_BOARDS, fields);
+
+    if (pinData != null) {
+      if (pinData.errorOccured) {
+        return PinResult(
+          errorData: pinData as PinErrorData
+        );
+      } else {
+        final PinRootData pinRootData = pinData as PinRootData;
+        return PinResult(
+          successData: List<BoardInfo>.generate(pinRootData.data.length, (int index) => BoardInfo.fromJson(pinRootData.data[index]))
+        );
+      }
+    } else {
+      return PinResult.empty();
+    }*/
+  }
 
   bool followBoard(BoardInfo board) => throw UnsupportedError('Not yet implemented');
 
   bool unfollowBoard(BoardInfo board) => throw UnsupportedError('Not yet implemented');
 
-  List<dynamic> getMyInterrests({
-    String cursor,
-    List<FieldData> fields
-  }) => throw UnsupportedError('Not yet implemented');
+  Future<PinResult<List<dynamic>>> getMyInterrests({String cursor, List<FieldData> fields}) async {
+    return null;
+  }
 
   List<UserInfo> getMyFollowings({
     String cursor,

@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:pinterest/pinterest.dart' as pinterest;
 
 main() {
-  pinterest.accessToken = 'AjdRdAK5so_p4LHYbdpe7q7HcLd5FcXT2lRXIJVGKq0eacCsVQhmwDAAAeYZRiq81gxAqssAAAAA';
+  pinterest.accessToken = 'Al5rcx-BEj1tNf6bdwBDYTj9sqX1Fcvr7Mwm2KNGKq0eacCsVQhmwDAAAeYZRiq81gxAqssAAAAA';
   pinterest.section.getSectionsFromBoard(null).then((pinterest.PinResult<List<pinterest.SectionInfo>> result) {
     if (result.errorOccured) {
       print(result.errorData.message);
