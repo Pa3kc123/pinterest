@@ -156,6 +156,7 @@ class Me {
     }*/
   }
 
+  ///Note: Not working for some reason
   Future<PinResult<List<BoardInfo>>> getFollwingBoards({String cursor, List<FieldData> fields}) async {
     throw UnsupportedError('Not yet implemented');
 
@@ -179,18 +180,51 @@ class Me {
     }*/
   }
 
-  bool followBoard(BoardInfo board) => throw UnsupportedError('Not yet implemented');
+  Future<PinResult<bool>> followBoard(BoardInfo board) async => throw UnsupportedError('Not yet implemented');
 
-  bool unfollowBoard(BoardInfo board) => throw UnsupportedError('Not yet implemented');
+  Future<PinResult<bool>> unfollowBoard(BoardInfo board) async => throw UnsupportedError('Not yet implemented');
 
-  Future<PinResult<List<dynamic>>> getMyInterrests({String cursor, List<FieldData> fields}) async {
-    return null;
+  Future<PinResult<List<BoardInfo>>> getMyInterrests({String cursor, List<FieldData> fields}) async {
+    filterFields(ME_GET_MY_INTERRESTS_CODE, fields);
+
+    final PinData pinData = await getJsonPinData(PATH_ME_GET_MY_INTERRESTS, fields);
+
+    if (pinData != null) {
+      if (pinData.errorOccured) {
+        return PinResult(
+          errorData: pinData as PinErrorData
+        );
+      } else {
+        final PinRootData pinRootData = pinData as PinRootData;
+        return PinResult(
+          successData: List<BoardInfo>.generate(pinRootData.data.length, (int index) => BoardInfo.fromJson(pinRootData.data[index]))
+        );
+      }
+    } else {
+      return PinResult.empty();
+    }
   }
 
-  List<UserInfo> getMyFollowings({
-    String cursor,
-    List<FieldData> fields
-  }) => throw UnsupportedError('Not yet implemented');
+  Future<PinResult<List<UserInfo>>> getMyFollowings({String cursor, List<FieldData> fields}) async {
+    filterFields(ME_GET_MY_FOLLOWINGS_CODE, fields);
+
+    final PinData pinData = await getJsonPinData(PATH_ME_GET_MY_FOLLOWINGS, fields);
+
+    if (pinData != null) {
+      if (pinData.errorOccured) {
+        return PinResult(
+          errorData: pinData as PinErrorData
+        );
+      } else {
+        final PinRootData pinRootData = pinData as PinRootData;
+        return PinResult(
+          successData: List<UserInfo>.generate(pinRootData.data.length, (int index) => UserInfo.fromJson(pinRootData.data[index]))
+        );
+      }
+    } else {
+      return PinResult.empty();
+    }
+  }
 
   bool followUser(UserInfo user) => throw UnsupportedError('Not yet implemented');
 

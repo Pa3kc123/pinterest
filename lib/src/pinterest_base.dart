@@ -22,7 +22,7 @@ const String SCOPE_READ_RELATIONSHIPS = 'read_relationships';
 const String SCOPE_WRITE_RELATIONSHIPS = 'write_relationships';
 
 Future<PinData> getJsonPinData(String path, [List<FieldData> fields, int limit]) async {
-  if (_accessToken == null) throw StateError('You need to set access token');
+  if (_accessToken == null) throw StateError('You need to set access token first');
 
   final Map<String, String> _fields = <String, String>{
     'access_token': _accessToken,
@@ -55,6 +55,29 @@ Future<PinData> getJsonPinData(String path, [List<FieldData> fields, int limit])
   if (json == null) return null;
 
   return response.statusCode == HttpStatus.ok ? PinRootData.fromJson(json, rateLimit, rateRemaining) : PinErrorData.fromJson(json, response.statusCode, rateLimit, rateRemaining);
+}
+
+Future<bool> postJsonPinData(String path) async {
+  if (_accessToken == null) throw StateError('You need to set access token first');
+
+  final Map<String, String> _fields = <String, String>{
+    'access_token': _accessToken
+  };
+
+  final Uri uri = Uri.https(PINTEREST_HOSTNAME, '/v$PINTEREST_API_VERSION$path', _fields);
+  final HttpClient client = HttpClient();
+
+  HttpClientResponse response;
+  try {
+    final HttpClientRequest request = await client.postUrl(uri);
+    response = await request.close();
+  } on SocketException {
+    rethrow;
+  } finally {
+    client?.close();
+  }
+
+  return null;
 }
 
 Section get section => Section();
