@@ -10,6 +10,7 @@ const String TOKEN_TYPE = 'bearer';
 const String PINTEREST_HOSTNAME = 'api.pinterest.com';
 const int PINTEREST_API_VERSION = 1;
 String _accessToken;
+bool _allFields = false;
 
 const String READ_WRITE_ALL = 'read_write_all';
 //Use GET method on a user’s Pins, boards.
@@ -57,11 +58,12 @@ Future<PinData> getJsonPinData(String path, [List<FieldData> fields, int limit])
   return response.statusCode == HttpStatus.ok ? PinRootData.fromJson(json, rateLimit, rateRemaining) : PinErrorData.fromJson(json, response.statusCode, rateLimit, rateRemaining);
 }
 
-Future<bool> postJsonPinData(String path) async {
+Future<PinData> postJsonPinData(String path, Map<String, dynamic> data, [List<FieldData> fields]) async {
   if (_accessToken == null) throw StateError('You need to set access token first');
 
   final Map<String, String> _fields = <String, String>{
-    'access_token': _accessToken
+    'access_token': _accessToken,
+    if (fields != null) 'fields': fields.join(',')
   };
 
   final Uri uri = Uri.https(PINTEREST_HOSTNAME, '/v$PINTEREST_API_VERSION$path', _fields);
@@ -70,6 +72,7 @@ Future<bool> postJsonPinData(String path) async {
   HttpClientResponse response;
   try {
     final HttpClientRequest request = await client.postUrl(uri);
+    request.write(data);
     response = await request.close();
   } on SocketException {
     rethrow;
@@ -77,7 +80,18 @@ Future<bool> postJsonPinData(String path) async {
     client?.close();
   }
 
-  return null;
+  final String rateLimitString = response.headers.value('X-Ratelimit-Limit');
+  final int rateLimit = rateLimitString != null ? int.parse(rateLimitString) : null;
+
+  final String rateRemainingString = response.headers.value('X-Ratelimit-Remaining');
+  final int rateRemaining = rateRemainingString != null ? int.parse(rateRemainingString) : null;
+
+  final String responseBody = await response.transform(const Utf8Decoder()).join();
+  final Map<String, dynamic> json = jsonDecode(responseBody);
+
+  if (json == null) return null;
+
+  return response.statusCode == HttpStatus.ok ? PinRootData.fromJson(json, rateLimit, rateRemaining) : PinErrorData.fromJson(json, response.statusCode, rateLimit, rateRemaining);
 }
 
 Section get section => Section();
@@ -87,3 +101,4 @@ Pin get pin => Pin();
 User get user => User();
 
 set accessToken(String value) => _accessToken = value;
+set allFields(bool value) => _allFields = value ?? _allFields;

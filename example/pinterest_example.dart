@@ -1,25 +1,18 @@
-import 'dart:io';
-
 import 'package:pinterest/pinterest.dart' as pinterest;
 
 main() {
   pinterest.accessToken = 'Al5rcx-BEj1tNf6bdwBDYTj9sqX1Fcvr7Mwm2KNGKq0eacCsVQhmwDAAAeYZRiq81gxAqssAAAAA';
-  pinterest.section.getSectionsFromBoard(null).then((pinterest.PinResult<List<pinterest.SectionInfo>> result) {
-    if (result.errorOccured) {
-      print(result.errorData.message);
-
-      if (result.errorData.statusCode == HttpStatus.tooManyRequests) {
-        print(result.errorData.rateLimit);
-        print(result.errorData.rateRemaining);
+  pinterest.user.getUserInfo("diogolobo1975")
+    ..then((pinterest.PinResult<pinterest.UserInfo> result) {
+      print(result.runtimeType);
+      if (result != null && !result.isResultEmpty) {
+        print(result.successData);
+      } else {
+        print(result?.errorData ?? "result == null");
       }
-    } else {
-      final StringBuffer buffer = StringBuffer();
-
-      for (pinterest.SectionInfo section in result.successData) {
-        buffer.writeln('section.id = ${section.id}');
-      }
-
-      print(buffer);
-    }
-  });
+    })
+    ..catchError((dynamic error) {
+      print(error.runtimeType);
+      print(error);
+    });
 }

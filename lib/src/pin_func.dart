@@ -280,5 +280,23 @@ class User {
 
   factory User() => _inst;
 
-  UserInfo getUserInfo(String user, [List<FieldData> fields]) => throw UnsupportedError('Not yet implemented');
+  Future<PinResult<UserInfo>> getUserInfo(String user, [List<FieldData> fields]) async {
+    filterFields(USER_GET_USER_INFO_CODE, fields);
+
+    final PinData pinData = await getJsonPinData('$PATH_USER/$user');
+
+    if (pinData != null) {
+      if (pinData.errorOccured) {
+        return PinResult(
+          errorData: pinData as PinErrorData
+        );
+      } else {
+        return PinResult(
+          successData: UserInfo.fromJson((pinData as PinRootData).data)
+        );
+      }
+    } else {
+      return PinResult.empty();
+    }
+  }
 }
