@@ -66,23 +66,19 @@ class Me {
   factory Me() => _inst;
 
   ///Return the logged in user's information
-  Future<PinResult<UserInfo>> getMyInfo([List<FieldData> fields]) async {
+  Future<PinData> getMyInfo([List<FieldData> fields]) async {
     filterFields(ME_GET_MY_INFO_CODE, fields);
 
     final PinData pinData = await getJsonPinData(PATH_ME, fields);
 
     if (pinData != null) {
       if (pinData.errorOccured) {
-        return PinResult(
-          errorData: pinData as PinErrorData
-        );
+        return pinData as PinErrorData;
       } else {
-        return PinResult(
-          successData: UserInfo.fromJson((pinData as PinRootData).data)
-        );
+        return UserInfo.fromJson(pinData);
       }
     } else {
-      return PinResult.empty();
+      return null;
     }
   }
 

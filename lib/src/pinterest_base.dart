@@ -10,7 +10,7 @@ const String TOKEN_TYPE = 'bearer';
 const String PINTEREST_HOSTNAME = 'api.pinterest.com';
 const int PINTEREST_API_VERSION = 1;
 String _accessToken;
-bool _allFields = false;
+bool _requestAllFields = false;
 
 const String READ_WRITE_ALL = 'read_write_all';
 //Use GET method on a user’s Pins, boards.
@@ -55,7 +55,7 @@ Future<PinData> getJsonPinData(String path, [List<FieldData> fields, int limit])
 
   if (json == null) return null;
 
-  return response.statusCode == HttpStatus.ok ? PinRootData.fromJson(json, rateLimit, rateRemaining) : PinErrorData.fromJson(json, response.statusCode, rateLimit, rateRemaining);
+  return response.statusCode == HttpStatus.ok ? PinData.fromJson(json, rateLimit, rateRemaining) : PinErrorData.fromJson(json, response.statusCode, rateLimit, rateRemaining);
 }
 
 Future<PinData> postJsonPinData(String path, Map<String, dynamic> data, [List<FieldData> fields]) async {
@@ -86,7 +86,7 @@ Future<PinData> postJsonPinData(String path, Map<String, dynamic> data, [List<Fi
   final String rateRemainingString = response.headers.value('X-Ratelimit-Remaining');
   final int rateRemaining = rateRemainingString != null ? int.parse(rateRemainingString) : null;
 
-  final String responseBody = await response.transform(const Utf8Decoder()).join();
+  final String responseBody = await response.transform(utf8.decoder).join();
   final Map<String, dynamic> json = jsonDecode(responseBody);
 
   if (json == null) return null;
@@ -100,5 +100,8 @@ Me get me => Me();
 Pin get pin => Pin();
 User get user => User();
 
+String get accessToken => _accessToken;
+bool get requestAllFields => _requestAllFields;
+
 set accessToken(String value) => _accessToken = value;
-set allFields(bool value) => _allFields = value ?? _allFields;
+set requestAllFields(bool value) => _requestAllFields = value ?? _requestAllFields;
