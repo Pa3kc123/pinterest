@@ -4,7 +4,7 @@
 library pinterest;
 
 export 'src/pinterest_base.dart';
-export 'src/pin_data.dart';
+export 'src/models.dart';
 export 'src/pin_func.dart';
 export 'src/fields.dart';
 

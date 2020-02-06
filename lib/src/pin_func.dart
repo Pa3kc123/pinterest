@@ -1,6 +1,6 @@
 import 'package:pinterest/src/fields.dart';
 import 'package:pinterest/src/pinterest_base.dart';
-import 'package:pinterest/src/pin_data.dart';
+import 'package:pinterest/src/models.dart';
 import 'package:pinterest/src/pin_filters.dart';
 import 'package:pinterest/src/pin_paths.dart';
 

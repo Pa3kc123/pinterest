@@ -1,29 +1,3 @@
-class ConstCollection<T> extends Iterable<T> {
-  final List<T> _values;
-
-  const ConstCollection(List<T> values) : this._values = values;
-
-  int get length => this._values.length;
-
-  T operator [](int index) => this._values[index];
-
-  @override
-  Iterator<T> get iterator => _ConstCollectionIterator(this);
-}
-
-class _ConstCollectionIterator<T> implements Iterator<T> {
-  final ConstCollection<T> _collection;
-  int index = 0;
-
-  _ConstCollectionIterator(this._collection);
-
-  @override
-  get current => _collection[index];
-
-  @override
-  bool moveNext() => ++index < this._collection.length;
-}
-
 abstract class Encodable<T> {
   Map<String, T> encode();
 }
