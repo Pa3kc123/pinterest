@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:pinterest/src/fields.dart';
 import 'package:pinterest/src/pin_data.dart';
 import 'package:pinterest/src/pin_func.dart';
+import 'package:pinterest/src/util.dart';
 
 const String TOKEN_TYPE = 'bearer';
 
@@ -22,7 +23,16 @@ const String SCOPE_READ_RELATIONSHIPS = 'read_relationships';
 //Use PATCH, POST and DELETE methods on a user’s follows and followers (on boards, users and interests).
 const String SCOPE_WRITE_RELATIONSHIPS = 'write_relationships';
 
-Future<PinData> getJsonPinData(String path, [List<FieldData> fields, int limit]) async {
+class MiniObject {
+  final int rateLimit;
+  final int rateRemaining;
+  final int statusCode;
+  final Map<String, dynamic> json;
+
+  const MiniObject(this.rateLimit, this.rateRemaining, this.statusCode, this.json);
+}
+
+Future<MiniObject> _getSiteData(String path, [List<FieldData> fields, int limit]) async {
   if (_accessToken == null) throw StateError('You need to set access token first');
 
   final Map<String, String> _fields = <String, String>{
@@ -53,12 +63,97 @@ Future<PinData> getJsonPinData(String path, [List<FieldData> fields, int limit])
   final String responseBody = await response.transform(const Utf8Decoder()).join();
   final Map<String, dynamic> json = jsonDecode(responseBody);
 
-  if (json == null) return null;
-
-  return response.statusCode == HttpStatus.ok ? PinData.fromJson(json, rateLimit, rateRemaining) : PinErrorData.fromJson(json, response.statusCode, rateLimit, rateRemaining);
+  return MiniObject(rateLimit, rateRemaining, response.statusCode, json);
 }
 
-Future<PinData> postJsonPinData(String path, Map<String, dynamic> data, [List<FieldData> fields]) async {
+Future<PinData> getJsonPinData<T extends PinData>(String path, [List<FieldData> fields, int limit]) async {
+  MiniObject obj;
+
+  try {
+    obj = await _getSiteData(path, fields, limit);
+  } on StateError {
+    rethrow;
+  }
+
+  if (obj.json == null) return null;
+
+  if (obj.statusCode != HttpStatus.ok) {
+    throw PinDataError()
+      ..status = obj.json['status'] as String
+      ..message = obj.json['message'] as String
+      ..code = obj.json['code'] as int
+      ..data = obj.json['data'] as dynamic
+      ..type = obj.json['type'] as String
+      ..statusCode = obj.statusCode
+      ..rateLimit = obj.rateLimit
+      ..rateRemaining = obj.rateRemaining;
+  }
+
+  T type = generateType<T>();
+
+  if (type == null) return null;
+
+  return type
+    ..decode(json)
+    ..rateLimit = obj.rateLimit
+    ..rateRemaining = obj.rateRemaining;
+}
+
+Future<List<PinData>> getJsonPinDataList<T extends PinData>(String path, [List<FieldData> fields, int limit]) async {
+  MiniObject obj;
+
+  try {
+    obj = await _getSiteData(path, fields, limit);
+  } on StateError {
+    rethrow;
+  }
+
+  if (obj.json == null) return null;
+
+  if (obj.statusCode != HttpStatus.ok) {
+    throw PinDataError()
+      ..status = obj.json['status'] as String
+      ..message = obj.json['message'] as String
+      ..code = obj.json['code'] as int
+      ..data = obj.json['data'] as dynamic
+      ..type = obj.json['type'] as String
+      ..statusCode = obj.statusCode
+      ..rateLimit = obj.rateLimit
+      ..rateRemaining = obj.rateRemaining;
+  }
+
+  return generateListType<T>(obj.json.keys.length)
+    ..forEach((T value) => generateType<T>()
+      ..decode(obj.json)
+      ..rateLimit = obj.rateLimit
+      ..rateRemaining = obj.rateRemaining
+    );
+}
+
+Future<PinData> getFakeJsonPinData<T extends PinData>(String path) async {
+  MiniObject obj = MiniObject(-1, -1, 200, jsonDecode(await File(path).readAsString()));
+
+  if (obj.json == null) return null;
+
+  if (obj.statusCode == HttpStatus.ok) {
+    T type = generateType<T>();
+
+    if (type == null) return null;
+
+    return type
+      ..decode(obj.json['data'])
+      ..rateLimit = obj.rateLimit
+      ..rateRemaining = obj.rateRemaining;
+  } else {
+    return generateType<PinErrorData>()
+      ..decode(obj.json)
+      ..statusCode = obj.statusCode
+      ..rateLimit = obj.rateLimit
+      ..rateRemaining = obj.rateRemaining;
+  }
+}
+
+/*Future<PinData> postJsonPinData(String path, Map<String, dynamic> data, [List<FieldData> fields]) async {
   if (_accessToken == null) throw StateError('You need to set access token first');
 
   final Map<String, String> _fields = <String, String>{
@@ -91,8 +186,8 @@ Future<PinData> postJsonPinData(String path, Map<String, dynamic> data, [List<Fi
 
   if (json == null) return null;
 
-  return response.statusCode == HttpStatus.ok ? PinRootData.fromJson(json, rateLimit, rateRemaining) : PinErrorData.fromJson(json, response.statusCode, rateLimit, rateRemaining);
-}
+  return response.statusCode == HttpStatus.ok ? PinData.fromJson(json, rateLimit, rateRemaining) : PinErrorData.fromJson(json, response.statusCode, rateLimit, rateRemaining);
+}*/
 
 Section get section => Section();
 Board get board => Board();

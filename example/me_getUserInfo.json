@@ -1,0 +1,25 @@
+{
+  "data": {
+    "username": "pa3kc123",
+    "bio": "",
+    "first_name": "Pa3kc",
+    "last_name": "",
+    "account_type": "individual",
+    "url": "https://www.pinterest.com/pa3kc123/",
+    "created_at": "2018-12-16T11:40:22",
+    "image": {
+      "60x60": {
+        "url": "https://s.pinimg.com/images/user/default_60.png",
+        "width": 60,
+        "height": 60
+      }
+    },
+    "counts": {
+      "pins": 1274,
+      "following": 7,
+      "followers": 10,
+      "boards": 12
+    },
+    "id": "605382512318998041"
+  }
+}

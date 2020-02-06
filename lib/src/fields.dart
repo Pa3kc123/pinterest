@@ -26,29 +26,29 @@ abstract class _PinField<T> {
 abstract class FieldData<T> implements _PinField<T> {
   static const FieldData ACCOUNT_TYPE  = AccountTypeField();
   static const FieldData ATTRIBUTION   = AttributionField();
-  static const FieldData BIO           = FieldData._('bio',                0x4);
-  static const FieldData BOARD         = FieldData._('board',              0x8);
-  static const FieldData COLOR         = FieldData._('color',             0x10);
-  static const FieldData COUNTS        = FieldData._('counts',            0x20);
-  static const FieldData CREATED_AT    = FieldData._('created_at',        0x40);
-  static const FieldData CREATOR       = FieldData._('creator',           0x80);
-  static const FieldData DESCRIPTION   = FieldData._('description',      0x100);
-  static const FieldData FIRST_NAME    = FieldData._('first_name',       0x200);
-  static const FieldData ID            = FieldData._('id',               0x400);
+  static const FieldData BIO           = BioField();
+  static const FieldData BOARD         = BoardField();
+  static const FieldData COLOR         = ColorField();
+  static const FieldData COUNTS        = CountsField();
+  static const FieldData CREATED_AT    = CreatedAtField();
+  static const FieldData CREATOR       = CreatorField();
+  static const FieldData DESCRIPTION   = DescriptionField();
+  static const FieldData FIRST_NAME    = FirstNameField();
+  static const FieldData ID            = IdField();
   static const FieldData IMAGE         = ImageField(null);
-  static const FieldData LAST_NAME     = FieldData._('last_name',       0x1000);
-  static const FieldData LINK          = FieldData._('link',            0x2000);
-  static const FieldData MEDIA         = FieldData._('media',           0x4000);
-  static const FieldData METADATA      = FieldData._('metadata',        0x8000);
-  static const FieldData NAME          = FieldData._('name',           0x10000);
-  static const FieldData NOTE          = FieldData._('note',           0x20000);
-  static const FieldData ORIGINAL_LINK = FieldData._('original_link',  0x40000);
-  static const FieldData PRIVACY       = FieldData._('privacy',        0x80000);
-  static const FieldData REASON        = FieldData._('reason',        0x100000);
-  static const FieldData URL           = FieldData._('url',           0x200000);
-  static const FieldData USERNAME      = FieldData._('username',      0x400000);
+  static const FieldData LAST_NAME     = LastNameField();
+  static const FieldData LINK          = LinkField();
+  static const FieldData MEDIA         = MediaField();
+  static const FieldData METADATA      = MetadataField();
+  static const FieldData NAME          = NameField();
+  static const FieldData NOTE          = NoteField();
+  static const FieldData ORIGINAL_LINK = OriginalLinkField();
+  static const FieldData PRIVACY       = PrivacyField();
+  static const FieldData REASON        = ReasonField();
+  static const FieldData URL           = UrlField();
+  static const FieldData USERNAME      = UsernameField();
 
-  static FieldData<ConstCollection<ImageSize>> createIMAGE(Iterable<ImageSize> sizes) => ImageField._(ConstCollection(sizes));
+  static FieldData<ConstCollection<ImageSize>> createIMAGE(Iterable<ImageSize> sizes) => ImageField(ConstCollection(sizes));
 
   static const ConstCollection<FieldData> values = ConstCollection(
     <FieldData>[
@@ -108,8 +108,36 @@ class BioField extends FieldData<String> {
   const BioField() : super._('bio', 0x4);
 }
 
-class BoardField extends FieldData<ConstCollection<Board>> {
+class BoardField extends FieldData<ConstCollection<BoardField>> {
   const BoardField() : super._('board', 0x8);
+}
+
+class ColorField extends FieldData<dynamic> {
+  const ColorField() : super._('color', 0x10);
+}
+
+class CountsField extends FieldData<dynamic> {
+  const CountsField() : super._('counts', 0x20);
+}
+
+class CreatedAtField extends FieldData<dynamic> {
+  const CreatedAtField() : super._('created_at', 0x40);
+}
+
+class CreatorField extends FieldData<dynamic> {
+  const CreatorField() : super._('creator', 0x80);
+}
+
+class DescriptionField extends FieldData<dynamic> {
+  const DescriptionField() : super._('description', 0x100);
+}
+
+class FirstNameField extends FieldData<dynamic> {
+  const FirstNameField() : super._('first_name', 0x200);
+}
+
+class IdField extends FieldData<dynamic> {
+  const IdField() : super._('id', 0x400);
 }
 
 class ImageSize {
@@ -132,4 +160,48 @@ class ImageField extends FieldData<ConstCollection<ImageSize>> {
 
   @override
   String parse() => this._sizes == null ? super.name : '${super.name}[${this._sizes.toString().substring(1, this._sizes.length - 1)}]';
+}
+
+class LastNameField extends FieldData<dynamic> {
+  const LastNameField() : super._('last_name', 0x1000);
+}
+
+class LinkField extends FieldData<dynamic> {
+  const LinkField() : super._('link', 0x2000);
+}
+
+class MediaField extends FieldData<dynamic> {
+  const MediaField() : super._('media', 0x4000);
+}
+
+class MetadataField extends FieldData<dynamic> {
+  const MetadataField() : super._('metadata', 0x8000);
+}
+
+class NameField extends FieldData<dynamic> {
+  const NameField() : super._('name', 0x10000);
+}
+
+class NoteField extends FieldData<dynamic> {
+  const NoteField() : super._('note', 0x20000);
+}
+
+class OriginalLinkField extends FieldData<dynamic> {
+  const OriginalLinkField() : super._('original_link', 0x40000);
+}
+
+class PrivacyField extends FieldData<dynamic> {
+  const PrivacyField() : super._('privacy', 0x80000);
+}
+
+class ReasonField extends FieldData<dynamic> {
+  const ReasonField() : super._('reason', 0x100000);
+}
+
+class UrlField extends FieldData<dynamic> {
+  const UrlField() : super._('url', 0x200000);
+}
+
+class UsernameField extends FieldData<dynamic> {
+  const UsernameField() : super._('username', 0x400000);
 }

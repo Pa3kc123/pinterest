@@ -7,6 +7,9 @@
         {
             "name": "Dart",
             "program": "example/pinterest_example.dart",
+            "args": [
+                "${workspaceFolder}/example/me_getUserInfo.json"
+            ],
             "request": "launch",
             "type": "dart"
         }

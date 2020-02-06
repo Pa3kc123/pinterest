@@ -34,6 +34,14 @@ class PinErrorData extends PinData {
   final JsonProperty<String> type;
   final int statusCode;
 
+  const PinErrorData._(this.status, this.message, this.code, this.data, this.type, this.statusCode, [int rateLimit, int rateRemaining]) : super._(true, rateLimit, rateRemaining);
+
+  factory PinErrorData.fromJson(Map<String, dynamic> json, int statusCode, [int rateLimit, int rateRemaining]) {
+    final status = json['status'] as String;
+    final message = json['message'] as String;
+    final code = json['code'] as int;
+    final data = json['data'] as dynamic;
+    final type = json['type'] as String;
   const PinErrorData._(
     this.status,
     this.message,
@@ -95,6 +103,9 @@ class SectionInfo extends PinData {
       this.id.name: this.id.value
     };
 
+  factory PinRootData.fromJson(Map<String, dynamic> json, [int rateLimit, int rateRemaining]) {
+    final data = json['data'] as dynamic;
+    final isDataListType = data is List;
     map.addAll(super.toJson());
 
     return map;
@@ -129,6 +140,27 @@ class BoardInfo extends PinData {
     int rateRemaining
   ) : super._(false, rateLimit, rateRemaining);
 
+  factory BoardInfo.fromJson(Map<String, dynamic> json) {
+    final name = json['name'] as String;
+
+    final creator = PinCreator.fromJson(json['creator'] as Map<String, dynamic>);
+
+    final urlString = json['url'] as String;
+    final url = urlString != null ? Uri.tryParse(urlString) : null;
+
+    final createAtString = json['created_at'] as String;
+    final createdAt = createAtString != null ? DateTime.tryParse(createAtString) : null;
+
+    final privacy = PinPrivacy.fromString(json['privacy'] as String);
+    final reason = PinReason.fromString(json['reason'] as String);
+
+    final image = PinImageCollection.fromJson(json['image'] as Map<String, dynamic>);
+
+    final countsMap = json['counts'] as Map<String, dynamic>;
+    final counts = countsMap != null ? PinCounts.fromJson(countsMap) : null;
+
+    final id = json['id'] as String;
+    final description = json['description'] as String;
   factory BoardInfo.fromJson(Map<String, dynamic> json, int rateLimit, int rateRemaining) {
     final JsonDecoder decoder = JsonDecoder(json);
 
@@ -162,6 +194,39 @@ class BoardInfo extends PinData {
   }
 
   @override
+  String toString() {
+    final buffer = StringBuffer();
+
+    buffer.writeln('name = $name');
+    buffer.writeln('creator = $creator');
+    buffer.writeln('url = $url');
+    buffer.writeln('createdAt = $createdAt');
+    buffer.writeln('privacy = $privacy');
+    buffer.writeln('reason = $reason');
+    buffer.writeln('image = $image');
+    buffer.writeln('counts = $counts');
+    buffer.writeln('id = $id');
+    buffer.writeln('description = $description');
+
+    return buffer.toString();
+  }
+}
+
+class PinInfo {
+  const PinInfo._();
+}
+
+class PinPage {
+  final String cursor;
+  final Uri next;
+
+  const PinPage._(this.cursor, this.next);
+
+  factory PinPage.fromJson(Map<String, dynamic> json) {
+    final cursor = json['cursor'] as String;
+
+    final nextString = json['next'] as String;
+    final next = nextString != null ? Uri.tryParse(nextString) : null;
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> map = <String, dynamic>{
       this.id.name: this.id.value,
@@ -224,6 +289,15 @@ class PinInfo extends PinData {
     final String urlString = json['url'] as String;
     final Uri url = (urlString?.isNotEmpty ?? false) ? Uri.tryParse(urlString) : null;
 
+  factory PinCreator.fromJson(Map<String, dynamic> json) {
+    if (json == null) return null;
+
+    final urlString = json['uri'] as String;
+    final url = urlString != null ? Uri.tryParse(urlString) : null;
+
+    final firstName = json['firstName'] as String;
+    final lastName = json['lastName'] as String;
+    final id = json['id'] as String;
     final Map<String, String> creatorMap = json['creator'] as Map<String, String>;
     final PinCreator creator = creatorMap != null ? PinCreator.fromJson(creatorMap) : null;
 
@@ -263,6 +337,12 @@ class UserInfo extends PinData {
     int rateRemaining
   ) : super._(false, rateLimit, rateRemaining);
 
+  factory UserInfo.fromJson(Map<String, dynamic> json) {
+    final username = json['username'] as String;
+    final bio = json['bio'] as String;
+    final firstName = json['first_name'] as String;
+    final lastName = json['last_name'] as String;
+    final accountType = json['account_type'] as String;
   factory UserInfo.fromJson(Map<String, dynamic> json, int rateLimit, int rateRemaining) {
     final String username = json['username'] as String;
     final String bio = json['bio'] as String;
@@ -270,16 +350,16 @@ class UserInfo extends PinData {
     final String lastName = json['last_name'] as String;
     final String accountType = json['account_type'] as String;
 
-    final String urlString = json['url'] as String;
-    final Uri url = urlString != null ? Uri.tryParse(urlString) : null;
+    final urlString = json['url'] as String;
+    final url = urlString != null ? Uri.tryParse(urlString) : null;
 
-    final String createdAtString = json['createdAt'] as String;
-    final DateTime createdAt = createdAtString != null ? DateTime.tryParse(createdAtString) : null;
+    final createdAtString = json['createdAt'] as String;
+    final createdAt = createdAtString != null ? DateTime.tryParse(createdAtString) : null;
 
-    final PinImageCollection image = PinImageCollection.fromJson(json['image']);
-    final PinCounts counts = PinCounts.fromJson(json['counts']);
+    final image = PinImageCollection.fromJson(json['image']);
+    final counts = PinCounts.fromJson(json['counts']);
 
-    final String id = json['id'] as String;
+    final id = json['id'] as String;
 
     return UserInfo._(username, bio, firstName, lastName, accountType, url, createdAt, image, counts, id, rateLimit, rateRemaining);
   }
@@ -342,7 +422,7 @@ class PinCreator {
 
   @override
   String toString() {
-    final StringBuffer buffer = StringBuffer();
+    final buffer = StringBuffer();
 
     buffer.writeln('url = ${this.url}');
     buffer.writeln('firstName = ${this.firstName}');
@@ -369,6 +449,13 @@ class PinCounts {
     final int collaborators = json['collaborators'] as int;
     final int followers = json['followers'] as int;
 
+  factory PinPrivacy.fromString(String value) {
+    if (value == null) return null;
+    switch (value) {
+      case 'public': return PUBLIC;
+      case 'private': return PRIVATE;
+      default: return null;
+    }
     return PinCounts._(pins, collaborators, followers);
   }
 
@@ -426,19 +513,24 @@ class PinImageCollection {
   );
 
   factory PinImageCollection.fromJson(Map<String, dynamic> json) {
-    final List<PinImage> collection = List<PinImage>(json.keys.length);
+    if (json == null) return null;
+    final collection = List<PinImage>(json.keys.length);
 
+    var i = 0;
+    for (final key in json.keys) {
+      collection[i++] = PinImage.fromJson(json[key]);
+    }
     json.keys.forEach((String key) => collection.add(PinImage.fromJson(json[key])));
 
     return PinImageCollection._(collection);
   }
 
-  PinImage operator [](int index) => this._collection[index];
+  PinImage operator [](int index) => _collection[index];
 
-  bool get isEmpty => this._collection.isEmpty;
-  bool get isNotEmpty => this._collection.isNotEmpty;
+  bool get isEmpty => _collection.isEmpty;
+  bool get isNotEmpty => _collection.isNotEmpty;
 
-  PinImage get first => this._collection[0];
+  PinImage get first => _collection[0];
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> map = Map<String, dynamic>();
@@ -447,7 +539,7 @@ class PinImageCollection {
   }
 
   @override
-  String toString() => this._collection.toString();
+  String toString() => _collection.toString();
 }
 
 class PinMedia {
@@ -455,6 +547,14 @@ class PinMedia {
 
   const PinMedia._(this.type);
 
+  factory PinImage.fromJson(Map<String, dynamic> json) {
+    if (json == null) return null;
+
+    final urlString = json['url'] as String;
+    final uri = urlString != null ? Uri.tryParse(urlString) : null;
+
+    final width = json['width'] as int;
+    final height = json['height'] as int;
   factory PinMedia.fromJson(Map<String, String> json) {
     final JsonDecoder decoder = JsonDecoder(json);
 
@@ -531,7 +631,7 @@ class PinPage {
 
   @override
   String toString() {
-    final StringBuffer buffer = StringBuffer();
+    final buffer = StringBuffer();
 
     buffer.writeln('cursor = ${this.cursor}');
     buffer.writeln('next = ${this.next}');
@@ -546,6 +646,10 @@ class PinPrivacy {
 
   final String privacy;
 
+  factory PinCounts.fromJson(Map<String, dynamic> json) {
+    final pins = json['pins'] as int;
+    final collaborators = json['collaborators'] as int;
+    final followers = json['followers'] as int;
   const PinPrivacy._(
     this.privacy
   );

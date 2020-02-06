@@ -12,14 +12,12 @@ class Section {
   factory Section() => _inst;
 
   bool createSection(BoardInfo board, String title, [List<PinInfo> initialPins]) => throw UnsupportedError('Not yet implemented');
-  Future<PinResult<List<SectionInfo>>> getSectionsFromBoard(BoardInfo board, [String cursor]) async {
-    final PinData pinData = await getJsonPinData(null);
+  Future<List<SectionInfo>> getSectionsFromBoard(BoardInfo board, [String cursor]) => throw UnsupportedError('Not yet implemented'); /*async {
+    final PinData pinData = await getJsonPinData<List<SectionInfo>>();
 
     if (pinData != null) {
       if (pinData.errorOccured) {
-        return PinResult(
-          errorData: pinData as PinErrorData
-        );
+        return pinData as PinErrorData;
       } else {
         final PinRootData pinRootData = pinData as PinRootData;
         return PinResult(
@@ -29,7 +27,7 @@ class Section {
     } else {
       return PinResult.empty();
     }
-  }
+  }*/
   bool removeSection(SectionInfo section) => throw UnsupportedError('Not yet implemented');
   List<PinInfo> getPinsFromSection(SectionInfo section, [String cursor]) => throw UnsupportedError('Not yet implemented');
 }
@@ -66,16 +64,17 @@ class Me {
   factory Me() => _inst;
 
   ///Return the logged in user's information
-  Future<PinData> getMyInfo([List<FieldData> fields]) async {
+  Future<PinData> getMyInfo(String path, [List<FieldData> fields]) async {
     filterFields(ME_GET_MY_INFO_CODE, fields);
 
-    final PinData pinData = await getJsonPinData(PATH_ME, fields);
+    // final PinData pinData = await getJsonPinData<UserInfo>(PATH_ME, fields);
+    final PinData pinData = await getFakeJsonPinData<UserInfo>(path);
 
     if (pinData != null) {
       if (pinData.errorOccured) {
         return pinData as PinErrorData;
       } else {
-        return UserInfo.fromJson(pinData);
+        return pinData as UserInfo;
       }
     } else {
       return null;
@@ -83,53 +82,35 @@ class Me {
   }
 
   ///Return the logged in user's Boards
-  Future<PinResult<List<BoardInfo>>> getMyBoards([List<FieldData> fields, int limit]) async {
+  Future<List<BoardInfo>> getMyBoards([List<FieldData> fields, int limit]) async {
     filterFields(ME_GET_MY_BOARDS_CODE, fields);
 
-    final PinData pinData = await getJsonPinData(PATH_ME_BOARDS, fields);
+    final List<PinData> pinDataList = await getJsonPinDataList<BoardInfo>(PATH_ME_BOARDS, fields);
 
-    if (pinData != null) {
-      if (pinData.errorOccured) {
-        return PinResult(
-          errorData: pinData as PinErrorData
-        );
-      } else {
-        final PinRootData pinRootData = pinData as PinRootData;
-        return PinResult(
-          successData: List<BoardInfo>.generate(pinRootData.data.length, (int index) => BoardInfo.fromJson(pinRootData.data[index]))
-        );
-      }
+    if (pinDataList != null) {
+      return pinDataList;
     } else {
-      return PinResult.empty();
+      return null;
     }
   }
 
   ///Return Board suggestions for the logged in user
-  Future<PinResult<List<BoardInfo>>> getMySuggestion({int count, PinInfo pin, List<FieldData> fields}) async {
+  Future<List<BoardInfo>> getMySuggestion({int count, PinInfo pin, List<FieldData> fields}) async {
     filterFields(ME_GET_MY_SUGGESTION_CODE, fields);
 
-    final PinData pinData = await getJsonPinData(PATH_ME_SUGGESTION, fields);
+    final List<PinData> pinDataList = await getJsonPinDataList<BoardInfo>(PATH_ME_SUGGESTION, fields);
 
-    if (pinData != null) {
-      if (pinData.errorOccured) {
-        return PinResult(
-          errorData: pinData as PinErrorData
-        );
-      } else {
-        final PinRootData pinRootData = pinData as PinRootData;
-        return PinResult(
-          successData: List<BoardInfo>.generate(pinRootData.data.length, (int index) => BoardInfo.fromJson(pinRootData.data[index]))
-        );
-      }
+    if (pinDataList != null) {
+      return pinDataList;
     } else {
-      return PinResult.empty();
+      return null;
     }
   }
 
   ///Return the users that follow the logged in user
   ///
   ///Note: Not working for some reason
-  Future<PinResult<List<UserInfo>>> getMyFollowers({String cursor, List<FieldData> fields}) async {
+  Future<List<UserInfo>> getMyFollowers({String cursor, List<FieldData> fields}) async {
     throw UnsupportedError('Not yet implemented');
 
     /*filterFields(ME_GET_MY_FOLLOWERS_CODE, fields);
@@ -153,7 +134,7 @@ class Me {
   }
 
   ///Note: Not working for some reason
-  Future<PinResult<List<BoardInfo>>> getFollwingBoards({String cursor, List<FieldData> fields}) async {
+  Future<List<BoardInfo>> getFollwingBoards({String cursor, List<FieldData> fields}) async {
     throw UnsupportedError('Not yet implemented');
 
     /*filterFields(ME_GET_MY_SUGGESTION_CODE, fields);
@@ -176,49 +157,31 @@ class Me {
     }*/
   }
 
-  Future<PinResult<bool>> followBoard(BoardInfo board) async => throw UnsupportedError('Not yet implemented');
+  Future<bool> followBoard(BoardInfo board) async => throw UnsupportedError('Not yet implemented');
 
-  Future<PinResult<bool>> unfollowBoard(BoardInfo board) async => throw UnsupportedError('Not yet implemented');
+  Future<bool> unfollowBoard(BoardInfo board) async => throw UnsupportedError('Not yet implemented');
 
-  Future<PinResult<List<BoardInfo>>> getMyInterrests({String cursor, List<FieldData> fields}) async {
+  Future<List<BoardInfo>> getMyInterrests({String cursor, List<FieldData> fields}) async {
     filterFields(ME_GET_MY_INTERRESTS_CODE, fields);
 
-    final PinData pinData = await getJsonPinData(PATH_ME_GET_MY_INTERRESTS, fields);
+    final List<PinData> pinDataList = await getJsonPinDataList<BoardInfo>(PATH_ME_GET_MY_INTERRESTS, fields);
 
-    if (pinData != null) {
-      if (pinData.errorOccured) {
-        return PinResult(
-          errorData: pinData as PinErrorData
-        );
-      } else {
-        final PinRootData pinRootData = pinData as PinRootData;
-        return PinResult(
-          successData: List<BoardInfo>.generate(pinRootData.data.length, (int index) => BoardInfo.fromJson(pinRootData.data[index]))
-        );
-      }
+    if (pinDataList != null) {
+      return pinDataList;
     } else {
-      return PinResult.empty();
+      return null;
     }
   }
 
-  Future<PinResult<List<UserInfo>>> getMyFollowings({String cursor, List<FieldData> fields}) async {
+  Future<List<UserInfo>> getMyFollowings({String cursor, List<FieldData> fields}) async {
     filterFields(ME_GET_MY_FOLLOWINGS_CODE, fields);
 
-    final PinData pinData = await getJsonPinData(PATH_ME_GET_MY_FOLLOWINGS, fields);
+    final List<PinData> pinDataList = await getJsonPinDataList(PATH_ME_GET_MY_FOLLOWINGS, fields);
 
-    if (pinData != null) {
-      if (pinData.errorOccured) {
-        return PinResult(
-          errorData: pinData as PinErrorData
-        );
-      } else {
-        final PinRootData pinRootData = pinData as PinRootData;
-        return PinResult(
-          successData: List<UserInfo>.generate(pinRootData.data.length, (int index) => UserInfo.fromJson(pinRootData.data[index]))
-        );
-      }
+    if (pinDataList != null) {
+      return pinDataList;
     } else {
-      return PinResult.empty();
+      return null;
     }
   }
 
@@ -276,23 +239,19 @@ class User {
 
   factory User() => _inst;
 
-  Future<PinResult<UserInfo>> getUserInfo(String user, [List<FieldData> fields]) async {
+  Future<PinData> getUserInfo(String user, [List<FieldData> fields]) async {
     filterFields(USER_GET_USER_INFO_CODE, fields);
 
-    final PinData pinData = await getJsonPinData('$PATH_USER/$user');
+    final PinData pinData = await getJsonPinData<UserInfo>('$PATH_USER/$user');
 
     if (pinData != null) {
       if (pinData.errorOccured) {
-        return PinResult(
-          errorData: pinData as PinErrorData
-        );
+        return pinData as PinErrorData;
       } else {
-        return PinResult(
-          successData: UserInfo.fromJson((pinData as PinRootData).data)
-        );
+        return pinData as UserInfo;
       }
     } else {
-      return PinResult.empty();
+      return null;
     }
   }
 }

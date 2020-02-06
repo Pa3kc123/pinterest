@@ -24,17 +24,23 @@ class _ConstCollectionIterator<T> implements Iterator<T> {
   bool moveNext() => ++index < this._collection.length;
 }
 
-abstract class Parser<T> {
-  Map<String, T> toJson();
+abstract class Encodable<T> {
+  Map<String, T> encode();
+}
+
+abstract class Decodable<T> {
+  void decode(T json);
+}
+
+abstract class Generator<T> {
+  T generate();
 }
 
 class JsonProperty<T> {
   final String name;
   final T value;
 
-  const JsonProperty._(this.name, this.value);
-
-  JsonProperty cast<E>(E Function(T value) parser) => JsonProperty._(this.name, parser(this.value));
+  const JsonProperty(this.name, this.value);
 }
 
 class JsonDecoder {
@@ -42,23 +48,37 @@ class JsonDecoder {
 
   const JsonDecoder(this.json);
 
-  JsonProperty get<T>(String name) {
-    final dynamic value = this.json[name];
+  JsonProperty<T> get<T>(String name) => JsonProperty<T>(name, this.json[name] as T);
 
-    if (value == null) return null;
+  JsonProperty<E> getAndCast<T, E>(String name, [E Function(T value) parser]) {
+    final JsonProperty<T> property = this.get<T>(name);
 
-    return JsonProperty._(name, value as T);
+    return JsonProperty(property.name, parser == null ? property.value as E : parser(property.value));
   }
 }
 
-String log(Parser<dynamic> parser) {
+int tabs = 0;
+String log(Encodable<dynamic> parser) {
   final StringBuffer buffer = StringBuffer();
 
-  final Map<String, dynamic> map = parser.toJson();
+  final Map<String, dynamic> map = parser.encode();
 
+  buffer.writeln('{');
+  tabs++;
+
+  String tab;
   for (String key in map.keys) {
-    buffer.writeln('$key = ${map[key].toString()}');
+    tab = "";
+
+    for (int i = tabs * 2; i >= 1; i--) {
+      tab += " ";
+    }
+
+    buffer.writeln('$tab$key = ${map[key].toString()}');
   }
+
+  tabs--;
+  buffer.write('${tab.replaceRange(0, 2, "")}}');
 
   return buffer.toString();
 }
