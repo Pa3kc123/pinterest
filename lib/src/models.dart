@@ -34,14 +34,6 @@ class PinErrorData extends PinData {
   final JsonProperty<String> type;
   final int statusCode;
 
-  const PinErrorData._(this.status, this.message, this.code, this.data, this.type, this.statusCode, [int rateLimit, int rateRemaining]) : super._(true, rateLimit, rateRemaining);
-
-  factory PinErrorData.fromJson(Map<String, dynamic> json, int statusCode, [int rateLimit, int rateRemaining]) {
-    final status = json['status'] as String;
-    final message = json['message'] as String;
-    final code = json['code'] as int;
-    final data = json['data'] as dynamic;
-    final type = json['type'] as String;
   const PinErrorData._(
     this.status,
     this.message,
