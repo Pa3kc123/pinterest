@@ -1,3 +1,5 @@
+import 'dart:io';
+
 abstract class Encodable<T> {
   Map<String, T> encode();
 }
@@ -6,8 +8,8 @@ abstract class Decodable<T> {
   void decode(T json);
 }
 
-abstract class Generator<T> {
-  T generate();
+abstract class Model<T> {
+  Model.newInstance();
 }
 
 class JsonProperty<T> {
@@ -15,6 +17,14 @@ class JsonProperty<T> {
   final T value;
 
   const JsonProperty(this.name, this.value);
+}
+
+class PinException implements Exception {
+  final int errorCode;
+  final int limit;
+  final int remains;
+
+  const PinException(this.errorCode, this.limit, this.remains);
 }
 
 class JsonDecoder {

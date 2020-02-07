@@ -1,6 +1,42 @@
 import 'package:pinterest/src/util.dart';
 
-class PinData implements Parser<dynamic> {
+class PinterestMessage {
+  JsonProperty<String> _status;
+  JsonProperty<int> _code;
+  JsonProperty<Map<String, dynamic>> _data;
+  JsonProperty<String> _message;
+
+  PinterestMessage();
+
+  factory PinterestMessage.fromJson(Map<String, dynamic> json) {
+    final JsonDecoder decoder = JsonDecoder(json);
+
+    final JsonProperty<String> status = decoder.get<String>("status");
+    final JsonProperty<int> code = decoder.get<int>("code");
+    final JsonProperty<Map<String, dynamic>> data = decoder.get<Map<String, dynamic>>("data");
+    final JsonProperty<String> message = decoder.get<String>("message");
+
+    return PinterestMessage()
+      .._status = status
+      .._code = code
+      .._data = data
+      .._message = message;
+  }
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    this._status.name: this._status.value,
+    this._code.name: this._code.value,
+    this._data.name: this._data.value,
+    this._message.name: this._message.value
+  };
+
+  String get status => this._status.value;
+  int get code => this._code.value;
+  Map<String, dynamic> get data => this._data.value;
+  String get message => this._message.value;
+}
+
+class PinData {
   final bool errorOccured;
   final int rateLimit;
   final int rateRemaining;
@@ -94,6 +130,7 @@ class SectionInfo extends PinData {
     final Map<String, String> map = <String, String>{
       this.id.name: this.id.value
     };
+  }
 
   factory PinRootData.fromJson(Map<String, dynamic> json, [int rateLimit, int rateRemaining]) {
     final data = json['data'] as dynamic;
@@ -132,27 +169,6 @@ class BoardInfo extends PinData {
     int rateRemaining
   ) : super._(false, rateLimit, rateRemaining);
 
-  factory BoardInfo.fromJson(Map<String, dynamic> json) {
-    final name = json['name'] as String;
-
-    final creator = PinCreator.fromJson(json['creator'] as Map<String, dynamic>);
-
-    final urlString = json['url'] as String;
-    final url = urlString != null ? Uri.tryParse(urlString) : null;
-
-    final createAtString = json['created_at'] as String;
-    final createdAt = createAtString != null ? DateTime.tryParse(createAtString) : null;
-
-    final privacy = PinPrivacy.fromString(json['privacy'] as String);
-    final reason = PinReason.fromString(json['reason'] as String);
-
-    final image = PinImageCollection.fromJson(json['image'] as Map<String, dynamic>);
-
-    final countsMap = json['counts'] as Map<String, dynamic>;
-    final counts = countsMap != null ? PinCounts.fromJson(countsMap) : null;
-
-    final id = json['id'] as String;
-    final description = json['description'] as String;
   factory BoardInfo.fromJson(Map<String, dynamic> json, int rateLimit, int rateRemaining) {
     final JsonDecoder decoder = JsonDecoder(json);
 
@@ -219,6 +235,7 @@ class PinPage {
 
     final nextString = json['next'] as String;
     final next = nextString != null ? Uri.tryParse(nextString) : null;
+  }
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> map = <String, dynamic>{
       this.id.name: this.id.value,
@@ -280,6 +297,7 @@ class PinInfo extends PinData {
 
     final String urlString = json['url'] as String;
     final Uri url = (urlString?.isNotEmpty ?? false) ? Uri.tryParse(urlString) : null;
+  }
 
   factory PinCreator.fromJson(Map<String, dynamic> json) {
     if (json == null) return null;
@@ -329,12 +347,6 @@ class UserInfo extends PinData {
     int rateRemaining
   ) : super._(false, rateLimit, rateRemaining);
 
-  factory UserInfo.fromJson(Map<String, dynamic> json) {
-    final username = json['username'] as String;
-    final bio = json['bio'] as String;
-    final firstName = json['first_name'] as String;
-    final lastName = json['last_name'] as String;
-    final accountType = json['account_type'] as String;
   factory UserInfo.fromJson(Map<String, dynamic> json, int rateLimit, int rateRemaining) {
     final String username = json['username'] as String;
     final String bio = json['bio'] as String;
