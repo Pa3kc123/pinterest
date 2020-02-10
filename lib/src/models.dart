@@ -1,317 +1,165 @@
-import 'package:pinterest/src/util.dart';
+import 'util.dart';
+import 'util.dart';
+import 'util.dart';
 
-class PinterestMessage {
+class PinterestMessage implements IJsonData {
   JsonProperty<String> _status;
   JsonProperty<int> _code;
   JsonProperty<Map<String, dynamic>> _data;
   JsonProperty<String> _message;
 
-  PinterestMessage();
+  PinterestMessage([
+    this._status,
+    this._code,
+    this._data,
+    this._message
+  ]);
 
-  factory PinterestMessage.fromJson(Map<String, dynamic> json) {
-    final JsonDecoder decoder = JsonDecoder(json);
+  JsonProperty<String> get status => _status;
+  JsonProperty<int> get code => _code;
+  JsonProperty<Map<String, dynamic>> get data => _data;
+  JsonProperty<String> get message => _message;
 
-    final JsonProperty<String> status = decoder.get<String>("status");
-    final JsonProperty<int> code = decoder.get<int>("code");
-    final JsonProperty<Map<String, dynamic>> data = decoder.get<Map<String, dynamic>>("data");
-    final JsonProperty<String> message = decoder.get<String>("message");
+  @override
+  void decode(Map<String, dynamic> json) {
+    final decoder = JsonDecoder(json);
 
-    return PinterestMessage()
-      .._status = status
-      .._code = code
-      .._data = data
-      .._message = message;
-  }
-
-  Map<String, dynamic> toJson() => <String, dynamic>{
-    this._status.name: this._status.value,
-    this._code.name: this._code.value,
-    this._data.name: this._data.value,
-    this._message.name: this._message.value
-  };
-
-  String get status => this._status.value;
-  int get code => this._code.value;
-  Map<String, dynamic> get data => this._data.value;
-  String get message => this._message.value;
-}
-
-class PinData {
-  final bool errorOccured;
-  final int rateLimit;
-  final int rateRemaining;
-
-  const PinData._(
-    this.errorOccured,
-    this.rateLimit,
-    this.rateRemaining
-  );
-
-  factory PinData.fromJson(Map<String, dynamic> json, int rateLimit, int rateRemaining) {
-    return PinData._(null, rateLimit, rateRemaining);
+    _status = decoder.get<String>('status');
+    _code = decoder.get<int>('code');
+    _data = decoder.get<Map<String, dynamic>>('data');
+    _message = decoder.get<String>('message');
   }
 
   @override
-  Map<String, dynamic> toJson() => <String, dynamic>{
-    'errorOccured': this.errorOccured,
-    'rateLimit': this.rateLimit,
-    'rateRemaining': this.rateRemaining
-  };
-
-  @override
-  String toString() => log(this);
+  Map<String, dynamic> encode() => encodeValues(<JsonProperty>[_status, _code, _data, _message]);
 }
 
-class PinErrorData extends PinData {
-  final JsonProperty<String> status;
-  final JsonProperty<String> message;
-  final JsonProperty<int> code;
-  final JsonProperty<dynamic> data;
-  final JsonProperty<String> type;
-  final int statusCode;
+class SectionInfo implements IJsonData {
+  JsonProperty<String> _id;
 
-  const PinErrorData._(
-    this.status,
-    this.message,
-    this.code,
-    this.data,
-    this.type,
-    this.statusCode,
-    int rateLimit,
-    int rateRemaining
-  ) : super._(true, rateLimit, rateRemaining);
+  SectionInfo([
+    this._id
+  ]);
 
-  factory PinErrorData.fromJson(Map<String, dynamic> json, int statusCode, int rateLimit, int rateRemaining) {
-    final JsonDecoder decoder = JsonDecoder(json);
+  JsonProperty<String> get id => _id;
 
-    final JsonProperty<String> status = decoder.get<String>('status');
-    final JsonProperty<String> message = decoder.get<String>('message');
-    final JsonProperty<int> code = decoder.get<int>('code');
-    final JsonProperty<dynamic> data = decoder.get<dynamic>('data');
-    final JsonProperty<String> type = decoder.get<String>('type');
+  @override
+  void decode(Map<String, dynamic> json) {
+    final decoder = JsonDecoder(json);
 
-    return PinErrorData._(status, message, code, data, type, statusCode, rateLimit, rateRemaining);
+    _id = decoder.get<String>('id');
   }
 
   @override
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> map = <String, dynamic>{
-      'status': this.status,
-      'message': this.message,
-      'code': this.code,
-      'data': this.data,
-      'type': this.type,
-      'statusCode': this.statusCode
-    };
-
-    map.addAll(super.toJson());
-
-    return map;
-  }
+  Map<String, dynamic> encode() => encodeValues([_id]);
 }
 
-class SectionInfo extends PinData {
-  final JsonProperty<String> id;
+class BoardInfo implements IJsonData {
+  JsonProperty<String> _id;
+  JsonProperty<String> _name;
+  JsonProperty<Uri> _url;
+  JsonProperty<String> _description;
+  JsonProperty<PinCreator> _creator;
+  JsonProperty<DateTime> _createdAt;
+  JsonProperty<PinCounts> _counts;
+  JsonProperty<PinImageCollection> _image;
 
-  const SectionInfo._(
-    this.id,
-    int rateLimit,
-    int rateRemaining
-  ) : super._(false, rateLimit, rateRemaining);
+  JsonProperty<PinPrivacy> _privacy;
+  JsonProperty<PinReason> _reason;
 
-  factory SectionInfo.fromString(String value, int rateLimit, int rateRemaining) {
-    final JsonProperty<String> id = JsonProperty<String>('id', value.substring(value.indexOf(' ') + 1, value.length - 1));
+  BoardInfo([
+    this._id,
+    this._name,
+    this._url,
+    this._description,
+    this._creator,
+    this._createdAt,
+    this._counts,
+    this._image,
+    this._privacy,
+    this._reason
+  ]);
 
-    return SectionInfo._(id, rateLimit, rateRemaining);
+  @override
+  void decode(Map<String, dynamic> json) {
+    final decoder = JsonDecoder(json);
+
+    _id = decoder.get<String>('id');
+    _name = decoder.get<String>('name');
+
+    final urlString = decoder.get<String>('url');
+    _url = (urlString.value?.isNotEmpty ?? false) ? urlString.cast<Uri>((String value) => Uri.tryParse(value)) : null;
+
+    _description = decoder.get<String>('description');
+
+    final creatorMap = decoder.get<Map<String, dynamic>>('creator');
+    _creator = creatorMap.value != null ? creatorMap.cast<PinCreator>((Map<String, dynamic> value) => PinCreator.fromJson(value)) : null;
+
+    final createdAtString = decoder.get<String>('created_at');
+    _createdAt = (createdAtString.value?.isNotEmpty ?? false) ? createdAtString.cast<DateTime>((String value) => DateTime.tryParse(value)) : null;
+
+    final countsMap = decoder.get<Map<String, dynamic>>('counts');
+    _counts = countsMap != null ? countsMap.cast<PinCounts>((Map<String, dynamic> value) => PinCounts.fromJson(value)) : null;
+
+    final imageMap = decoder.get<Map<String, PinImageCollection>>('image');
+    _image = imageMap.value != null ? imageMap.cast<PinImageCollection>((Map<String, PinImageCollection> value) => PinImageCollection.fromJson(imageMap.value)) : null;
+
+    final privacyString =  decoder.get<String>('privacy');
+    _privacy = privacyString != null ? privacyString.cast<PinPrivacy>((String value) => PinPrivacy.fromString(privacyString.value)) : null;
+
+    final reasonString = decoder.get<String>('reason');
+    _reason = reasonString != null ? reasonString.cast<PinReason>((String value) => PinReason.fromString(reasonString.value)) : null;
   }
 
   @override
-  Map<String, String> toJson() {
-    final Map<String, String> map = <String, String>{
-      this.id.name: this.id.value
-    };
-  }
-
-  factory PinRootData.fromJson(Map<String, dynamic> json, [int rateLimit, int rateRemaining]) {
-    final data = json['data'] as dynamic;
-    final isDataListType = data is List;
-    map.addAll(super.toJson());
-
-    return map;
-  }
+  Map<String, dynamic> encode() => encodeValues([_id, _name, _url, _description, _creator, _createdAt, _counts, _image, _privacy, _reason]);
 }
 
-class BoardInfo extends PinData {
-  final JsonProperty<String> id;
-  final JsonProperty<String> name;
-  final JsonProperty<Uri> url;
-  final JsonProperty<String> description;
-  final JsonProperty<PinCreator> creator;
-  final JsonProperty<DateTime> createdAt;
-  final JsonProperty<PinCounts> counts;
-  final JsonProperty<PinImageCollection> image;
+class PinInfo implements IJsonData {
+  JsonProperty<String> _id;
+  JsonProperty<Uri> _link;
+  JsonProperty<Uri> _url;
+  JsonProperty<PinCreator> _creator;
+  JsonProperty<BoardInfo> _board;
+  JsonProperty<DateTime> _createdAt;
+  JsonProperty<String> _note;
+  JsonProperty<String> _color;
+  JsonProperty<PinCounts> _counts;
+  JsonProperty<PinMedia> _media;
+  JsonProperty<PinAttribution> _attribution;
+  JsonProperty<PinImageCollection> _image;
+  JsonProperty<PinMetadata> _metadata;
 
-  final JsonProperty<PinPrivacy> privacy;
-  final JsonProperty<PinReason> reason;
-
-  const BoardInfo._(
-    this.id,
-    this.name,
-    this.url,
-    this.description,
-    this.creator,
-    this.createdAt,
-    this.counts,
-    this.image,
-    this.privacy,
-    this.reason,
-    int rateLimit,
-    int rateRemaining
-  ) : super._(false, rateLimit, rateRemaining);
-
-  factory BoardInfo.fromJson(Map<String, dynamic> json, int rateLimit, int rateRemaining) {
-    final JsonDecoder decoder = JsonDecoder(json);
-
-    final JsonProperty<String> id = decoder.get<String>('id');
-    final JsonProperty<String> name = decoder.get<String>('name');
-
-    final JsonProperty<String> urlString = decoder.get<String>('url');
-    final JsonProperty<Uri> url = (urlString.value?.isNotEmpty ?? false) ? urlString.cast<Uri>((String value) => Uri.tryParse(value)) : null;
-
-    final JsonProperty<String> description = decoder.get<String>('description');
-
-    final JsonProperty<Map<String, dynamic>> creatorMap = decoder.get<Map<String, dynamic>>('creator');
-    final JsonProperty<PinCreator> creator = creatorMap.value != null ? creatorMap.cast<PinCreator>((Map<String, dynamic> value) => PinCreator.fromJson(value)) : null;
-
-    final JsonProperty<String> createdAtString = decoder.get<String>('created_at');
-    final JsonProperty<DateTime> createdAt = (createdAtString.value?.isNotEmpty ?? false) ? createdAtString.cast<DateTime>((String value) => DateTime.tryParse(value)) : null;
-
-    final JsonProperty<Map<String, dynamic>> countsMap = decoder.get<Map<String, dynamic>>('counts');
-    final JsonProperty<PinCounts> counts = countsMap != null ? countsMap.cast<PinCounts>((Map<String, dynamic> value) => PinCounts.fromJson(value)) : null;
-
-    final JsonProperty<Map<String, PinImageCollection>> imageMap = decoder.get<Map<String, PinImageCollection>>('image');
-    final JsonProperty<PinImageCollection> image = imageMap.value != null ? imageMap.cast<PinImageCollection>((Map<String, PinImageCollection> value) => PinImageCollection.fromJson(imageMap.value)) : null;
-
-    final JsonProperty<String> privacyString =  decoder.get<String>('privacy');
-    final JsonProperty<PinPrivacy> privacy = privacyString != null ? privacyString.cast<PinPrivacy>((String value) => PinPrivacy.fromString(privacyString.value)) : null;
-
-    final JsonProperty<String> reasonString = decoder.get<String>('reason');
-    final JsonProperty<PinReason> reason = reasonString != null ? reasonString.cast<PinReason>((String value) => PinReason.fromString(reasonString.value)) : null;
-
-    return BoardInfo._(id, name, url, description, creator, createdAt, counts, image, privacy, reason, rateLimit, rateRemaining);
-  }
+  PinInfo([
+    this._id,
+    this._link,
+    this._url,
+    this._creator,
+    this._board,
+    this._createdAt,
+    this._note,
+    this._color,
+    this._counts,
+    this._media,
+    this._attribution,
+    this._image,
+    this._metadata
+  ]);
 
   @override
-  String toString() {
-    final buffer = StringBuffer();
+  void decode(Map<String, dynamic> json) {
+    final decoder = JsonDecoder(json);
 
-    buffer.writeln('name = $name');
-    buffer.writeln('creator = $creator');
-    buffer.writeln('url = $url');
-    buffer.writeln('createdAt = $createdAt');
-    buffer.writeln('privacy = $privacy');
-    buffer.writeln('reason = $reason');
-    buffer.writeln('image = $image');
-    buffer.writeln('counts = $counts');
-    buffer.writeln('id = $id');
-    buffer.writeln('description = $description');
+    _id = decoder.get<String>('id');
 
-    return buffer.toString();
-  }
-}
+    final linkString = json['link'] as String;
+    _link = (linkString?.isNotEmpty ?? false) ? Uri.tryParse(linkString) : null;
 
-class PinInfo {
-  const PinInfo._();
-}
+    final urlString = json['url'] as String;
+    _url = (urlString?.isNotEmpty ?? false) ? Uri.tryParse(urlString) : null;
 
-class PinPage {
-  final String cursor;
-  final Uri next;
-
-  const PinPage._(this.cursor, this.next);
-
-  factory PinPage.fromJson(Map<String, dynamic> json) {
-    final cursor = json['cursor'] as String;
-
-    final nextString = json['next'] as String;
-    final next = nextString != null ? Uri.tryParse(nextString) : null;
-  }
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> map = <String, dynamic>{
-      this.id.name: this.id.value,
-      this.name.name: this.name.value,
-      this.url.name: this.url.value,
-      this.description.name: this.description.value,
-      this.creator.name: this.creator.value,
-      this.createdAt.name: this.createdAt.value,
-      this.counts.name: this.counts.value,
-      this.image.name: this.image.value,
-      this.privacy.name: this.privacy.value,
-      this.reason.name: this.reason.value
-    };
-
-    map.addAll(super.toJson());
-
-    return map;
-  }
-}
-
-class PinInfo extends PinData {
-  final String id;
-  final Uri link;
-  final Uri url;
-  final PinCreator creator;
-  final BoardInfo board;
-  final DateTime createdAt;
-  final String note;
-  final String color;
-  final PinCounts counts;
-  final PinMedia media;
-  final PinAttribution attribution;
-  final PinImageCollection image;
-  final PinMetadata metadata;
-
-  const PinInfo._(
-    this.id,
-    this.link,
-    this.url,
-    this.creator,
-    this.board,
-    this.createdAt,
-    this.note,
-    this.color,
-    this.counts,
-    this.media,
-    this.attribution,
-    this.image,
-    this.metadata,
-    int rateLimit,
-    int rateRemaining
-  ) : super._(false, rateLimit, rateRemaining);
-
-  factory PinInfo.fromJson(Map<String, dynamic> json, int rateLimit, int rateRemaining) {
-    final String id = json['id'] as String;
-
-    final String linkString = json['link'] as String;
-    final Uri link = (linkString?.isNotEmpty ?? false) ? Uri.tryParse(linkString) : null;
-
-    final String urlString = json['url'] as String;
-    final Uri url = (urlString?.isNotEmpty ?? false) ? Uri.tryParse(urlString) : null;
-  }
-
-  factory PinCreator.fromJson(Map<String, dynamic> json) {
-    if (json == null) return null;
-
-    final urlString = json['uri'] as String;
-    final url = urlString != null ? Uri.tryParse(urlString) : null;
-
-    final firstName = json['firstName'] as String;
-    final lastName = json['lastName'] as String;
-    final id = json['id'] as String;
-    final Map<String, String> creatorMap = json['creator'] as Map<String, String>;
-    final PinCreator creator = creatorMap != null ? PinCreator.fromJson(creatorMap) : null;
-
-    return null;
+    final creatorMap = json['creator'] as Map<String, String>;
+    _creator = creatorMap != null ? PinCreator.fromJson(creatorMap) : null;
   }
 
   @override
@@ -348,11 +196,11 @@ class UserInfo extends PinData {
   ) : super._(false, rateLimit, rateRemaining);
 
   factory UserInfo.fromJson(Map<String, dynamic> json, int rateLimit, int rateRemaining) {
-    final String username = json['username'] as String;
-    final String bio = json['bio'] as String;
-    final String firstName = json['first_name'] as String;
-    final String lastName = json['last_name'] as String;
-    final String accountType = json['account_type'] as String;
+    final username = json['username'] as String;
+    final bio = json['bio'] as String;
+    final firstName = json['first_name'] as String;
+    final lastName = json['last_name'] as String;
+    final accountType = json['account_type'] as String;
 
     final urlString = json['url'] as String;
     final url = urlString != null ? Uri.tryParse(urlString) : null;
@@ -369,24 +217,18 @@ class UserInfo extends PinData {
   }
 
   @override
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> map = <String, dynamic>{
-      'username': this.username,
-      'bio': this.bio,
-      'first_name': this.firstName,
-      'last_name': this.lastName,
-      'account_type': this.accountType,
-      'url': this.url,
-      'created_at': this.createdAt,
-      'image': this.image.toJson(),
-      'counts': this.counts.toJson(),
-      'id': this.id
-    };
-
-    map.addAll(super.toJson());
-
-    return map;
-  }
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    'username': username,
+    'bio': bio,
+    'first_name': firstName,
+    'last_name': lastName,
+    'account_type': accountType,
+    'url': url,
+    'created_at': createdAt,
+    'image': image.toJson(),
+    'counts': counts.toJson(),
+    'id': id
+  }..addAll(super.toJson());
 }
 
 class PinAttribution {
@@ -407,31 +249,31 @@ class PinCreator {
   );
 
   factory PinCreator.fromJson(Map<String, dynamic> json) {
-    final String urlString = json['uri'] as String;
-    final Uri url = urlString != null ? Uri.tryParse(urlString) : null;
+    final urlString = json['uri'] as String;
+    final url = urlString != null ? Uri.tryParse(urlString) : null;
 
-    final String firstName = json['firstName'] as String;
-    final String lastName = json['lastName'] as String;
-    final String id = json['id'] as String;
+    final firstName = json['firstName'] as String;
+    final lastName = json['lastName'] as String;
+    final id = json['id'] as String;
 
     return PinCreator._(url, firstName, lastName, id);
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'url': this.url,
-    'firstName': this.firstName,
-    'lastName': this.lastName,
-    'id': this.id
+    'url': url,
+    'firstName': firstName,
+    'lastName': lastName,
+    'id': id
   };
 
   @override
   String toString() {
     final buffer = StringBuffer();
 
-    buffer.writeln('url = ${this.url}');
-    buffer.writeln('firstName = ${this.firstName}');
-    buffer.writeln('lastName = ${this.lastName}');
-    buffer.writeln('id = ${this.id}');
+    buffer.writeln('url = ${url}');
+    buffer.writeln('firstName = ${firstName}');
+    buffer.writeln('lastName = ${lastName}');
+    buffer.writeln('id = ${id}');
 
     return super.toString();
   }
@@ -449,24 +291,17 @@ class PinCounts {
   );
 
   factory PinCounts.fromJson(Map<String, dynamic> json) {
-    final int pins = json['pins'] as int;
-    final int collaborators = json['collaborators'] as int;
-    final int followers = json['followers'] as int;
+    final pins = json['pins'] as int;
+    final collaborators = json['collaborators'] as int;
+    final followers = json['followers'] as int;
 
-  factory PinPrivacy.fromString(String value) {
-    if (value == null) return null;
-    switch (value) {
-      case 'public': return PUBLIC;
-      case 'private': return PRIVATE;
-      default: return null;
-    }
     return PinCounts._(pins, collaborators, followers);
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'pins': this.pins,
-    'collaborators': this.collaborators,
-    'followers': this.followers
+    'pins': pins,
+    'collaborators': collaborators,
+    'followers': followers
   };
 }
 
@@ -482,24 +317,24 @@ class PinImage {
   );
 
   factory PinImage.fromJson(Map<String, dynamic> json) {
-    final String urlString = json['url'] as String;
-    final Uri uri = urlString != null ? Uri.tryParse(urlString) : null;
+    final urlString = json['url'] as String;
+    final uri = urlString != null ? Uri.tryParse(urlString) : null;
 
-    final int width = json['width'] as int;
-    final int height = json['height'] as int;
+    final width = json['width'] as int;
+    final height = json['height'] as int;
 
     return PinImage._(uri, width, height);
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'url': this.url,
-    'width': this.width,
-    'height': this.height
+    'url': url,
+    'width': width,
+    'height': height
   };
 
   @override
   String toString() {
-    final StringBuffer buffer = StringBuffer();
+    final buffer = StringBuffer();
 
     buffer.writeln('url = $url');
     buffer.writeln('width = $width');
@@ -517,13 +352,8 @@ class PinImageCollection {
   );
 
   factory PinImageCollection.fromJson(Map<String, dynamic> json) {
-    if (json == null) return null;
     final collection = List<PinImage>(json.keys.length);
 
-    var i = 0;
-    for (final key in json.keys) {
-      collection[i++] = PinImage.fromJson(json[key]);
-    }
     json.keys.forEach((String key) => collection.add(PinImage.fromJson(json[key])));
 
     return PinImageCollection._(collection);
@@ -536,11 +366,7 @@ class PinImageCollection {
 
   PinImage get first => _collection[0];
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> map = Map<String, dynamic>();
-
-    return map;
-  }
+  Map<String, dynamic> toJson() => const <String, dynamic>{};
 
   @override
   String toString() => _collection.toString();
@@ -551,18 +377,10 @@ class PinMedia {
 
   const PinMedia._(this.type);
 
-  factory PinImage.fromJson(Map<String, dynamic> json) {
-    if (json == null) return null;
-
-    final urlString = json['url'] as String;
-    final uri = urlString != null ? Uri.tryParse(urlString) : null;
-
-    final width = json['width'] as int;
-    final height = json['height'] as int;
   factory PinMedia.fromJson(Map<String, String> json) {
-    final JsonDecoder decoder = JsonDecoder(json);
+    final decoder = JsonDecoder(json);
 
-    final JsonProperty<String> typeString = decoder.get<String>('type');
+    final typeString = decoder.get<String>('type');
     final JsonProperty<PinMediaType> type = typeString != null ? typeString.cast<PinMediaType>((String value) =>  PinMediaType.fromString(value)) : null;
 
     return PinMedia._(type);
@@ -593,7 +411,7 @@ class PinMetadata {
   );
 
   factory PinMetadata.fromJson(Map<String, dynamic> json) {
-    final JsonDecoder decoder = JsonDecoder(json);
+    final decoder = JsonDecoder(json);
 
     final JsonProperty<Map<String, String>> linkMap = decoder.get<Map<String, String>>('link');
     final JsonProperty<PinMetadataLink> link = linkMap != null ? linkMap.cast<PinMetadataLink>((Map<String, String> map) => PinMetadataLink.fromJson(map)) : null;
@@ -620,25 +438,25 @@ class PinPage {
   );
 
   factory PinPage.fromJson(Map<String, dynamic> json) {
-    final String cursor = json['cursor'] as String;
+    final cursor = json['cursor'] as String;
 
-    final String nextString = json['next'] as String;
-    final Uri next = nextString != null ? Uri.tryParse(nextString) : null;
+    final nextString = json['next'] as String;
+    final next = nextString != null ? Uri.tryParse(nextString) : null;
 
     return PinPage._(cursor, next);
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-    'cursor': this.cursor,
-    'next': this.next
+    'cursor': cursor,
+    'next': next
   };
 
   @override
   String toString() {
     final buffer = StringBuffer();
 
-    buffer.writeln('cursor = ${this.cursor}');
-    buffer.writeln('next = ${this.next}');
+    buffer.writeln('cursor = ${cursor}');
+    buffer.writeln('next = ${next}');
 
     return buffer.toString();
   }
@@ -650,10 +468,6 @@ class PinPrivacy {
 
   final String privacy;
 
-  factory PinCounts.fromJson(Map<String, dynamic> json) {
-    final pins = json['pins'] as int;
-    final collaborators = json['collaborators'] as int;
-    final followers = json['followers'] as int;
   const PinPrivacy._(
     this.privacy
   );
@@ -667,11 +481,11 @@ class PinPrivacy {
   }
 
   Map<String, String> toJson() => <String, String>{
-    'privacy': this.privacy
+    'privacy': privacy
   };
 
   @override
-  String toString() => this.privacy;
+  String toString() => privacy;
 }
 
 class PinReason {
@@ -691,9 +505,9 @@ class PinReason {
   }
 
   Map<String, String> toJson() => <String, String>{
-    'reason': this.reason
+    'reason': reason
   };
 
   @override
-  String toString() => this.reason;
+  String toString() => reason;
 }
