@@ -1,12 +1,17 @@
-abstract class IEncodable {
-  Map<String, dynamic> encode();
+abstract class IEncodable<T> {
+  T encode();
 }
 
-abstract class IDecodable {
-  void decode(Map<String, dynamic> json);
+abstract class IDecodable<T> {
+  void decode(T json);
 }
 
-abstract class IJsonData implements IEncodable, IDecodable {}
+abstract class AJsonData<T> implements IEncodable<T>, IDecodable<T> {
+  const AJsonData();
+
+  @override
+  String toString() => encode().toString();
+}
 
 class JsonProperty<T> {
   final String name;
@@ -28,17 +33,17 @@ class JsonDecoder {
 
   const JsonDecoder(this.json);
 
-  JsonProperty<T> get<T>(String name) => JsonProperty<T>(name, json[name] as T);
+  JsonProperty<T> getAndCast<T>(String name) => JsonProperty<T>(name, json[name] as T);
 
-  JsonProperty<E> getAndCast<T, E>(String name, [E Function(T value) parser]) {
-    final property = get<T>(name);
+  JsonProperty<E> getAndParse<T, E>(String name, E Function(T value) parser) {
+    final property = getAndCast<T>(name);
 
-    return JsonProperty(property.name, parser == null ? property.value as E : parser(property.value));
+    return JsonProperty(property.name, parser?.call(property.value) ?? property.value as E);
   }
 }
 
 int tabs = 0;
-String log(Encodable<dynamic> parser) {
+String log(IEncodable parser) {
   final buffer = StringBuffer();
 
   final map = parser.encode();
