@@ -5,31 +5,37 @@ class PinterestMessage extends AJsonData<Map<String, dynamic>> {
   JsonProperty<int> _code;
   JsonProperty<Map<String, dynamic>> _data;
   JsonProperty<String> _message;
+  JsonProperty<String> _type;
 
   PinterestMessage([
     this._status,
     this._code,
     this._data,
-    this._message
+    this._message,
+    this._type
   ]);
 
   String get status => _status?.value;
   int get code => _code?.value;
   Map<String, dynamic> get data => _data?.value;
   String get message => _message?.value;
+  String get type=> _type?.value;
 
   @override
   void decode(Map<String, dynamic> json) {
+    if (json == null) return null;
+
     final decoder = JsonDecoder(json);
 
     _status = decoder.getAndCast<String>('status');
     _code = decoder.getAndCast<int>('code');
     _data = decoder.getAndCast<Map<String, dynamic>>('data');
     _message = decoder.getAndCast<String>('message');
+    _type = decoder.getAndCast<String>('type');
   }
 
   @override
-  Map<String, dynamic> encode() => encodeValues([_status, _code, _data, _message]);
+  Map<String, dynamic> encode() => encodeValues([_status, _code, _data, _message, _type]);
 }
 
 class SectionInfo extends AJsonData<Map<String, dynamic>> {
@@ -43,6 +49,8 @@ class SectionInfo extends AJsonData<Map<String, dynamic>> {
 
   @override
   void decode(Map<String, dynamic> json) {
+    if (json == null) return null;
+
     final decoder = JsonDecoder(json);
 
     _id = decoder.getAndCast<String>('id');
@@ -90,6 +98,8 @@ class BoardInfo extends AJsonData<Map<String, dynamic>> {
 
   @override
   void decode(Map<String, dynamic> json) {
+    if (json == null) return null;
+
     final decoder = JsonDecoder(json);
 
     _id = decoder.getAndCast<String>('id');
@@ -155,6 +165,8 @@ class PinInfo extends AJsonData<Map<String, dynamic>> {
 
   @override
   void decode(Map<String, dynamic> json) {
+    if (json == null) return null;
+
     final decoder = JsonDecoder(json);
 
     _id = decoder.getAndCast<String>('id');
@@ -214,6 +226,8 @@ class UserInfo extends AJsonData<Map<String, dynamic>> {
 
   @override
   void decode(Map<String, dynamic> json) {
+    if (json == null) return null;
+
     final decoder = JsonDecoder(json);
 
     _username = decoder.getAndCast<String>('username');
@@ -262,6 +276,8 @@ class PinCreator extends AJsonData<Map<String, dynamic>> {
 
   @override
   void decode(Map<String, dynamic> json) {
+    if (json == null) return null;
+
     final decoder = JsonDecoder(json);
 
     _url = decoder.getAndParse<String, Uri>('url', (String value) => Uri.tryParse(value));
@@ -291,6 +307,8 @@ class PinCounts extends AJsonData<Map<String, dynamic>> {
 
   @override
   void decode(Map<String, dynamic> json) {
+    if (json == null) return null;
+
     final decoder = JsonDecoder(json);
 
     _pins = decoder.getAndCast<int>('pins');
@@ -319,6 +337,8 @@ class PinImage extends AJsonData<Map<String, dynamic>> {
 
   @override
   void decode(Map<String, dynamic> json) {
+    if (json == null) return null;
+
     final decoder = JsonDecoder(json);
 
     _url = decoder.getAndParse<String, Uri>('url', (String value) => Uri.tryParse(value));
@@ -339,6 +359,8 @@ class PinImageCollection extends AJsonData<Map<String, dynamic>> {
 
   @override
   void decode(Map<String, dynamic> json) {
+    if (json == null) return null;
+
     final decoder = JsonDecoder(json);
     _collection = List<JsonProperty<PinImage>>(json.keys.length);
 
@@ -372,6 +394,8 @@ class PinMedia extends AJsonData<Map<String, dynamic>> {
 
   @override
   void decode(Map<String, dynamic> json) {
+    if (json == null) return null;
+
     final decoder = JsonDecoder(json);
 
     _type = decoder.getAndParse<String, PinMediaType>('type', (String value) => PinMediaType()..decode(value));
@@ -411,6 +435,8 @@ class PinMetadata extends AJsonData<Map<String, dynamic>> {
 
   @override
   void decode(Map<String, dynamic> json) {
+    if (json == null) return null;
+
     final decoder = JsonDecoder(json);
 
     _link = decoder.getAndParse<Map<String, dynamic>, PinMetadataLink>('link', (Map<String, dynamic> value) => PinMetadataLink()..decode(value));
@@ -444,6 +470,8 @@ class PinPage extends AJsonData<Map<String, dynamic>> {
 
   @override
   void decode(Map<String, dynamic> json) {
+    if (json == null) return null;
+
     final decoder = JsonDecoder(json);
 
     _cursor = decoder.getAndCast<String>('cursor');

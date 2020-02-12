@@ -1,8 +1,11 @@
+import 'dart:html';
+
 import 'package:pinterest/src/fields.dart';
 import 'package:pinterest/src/core.dart';
 import 'package:pinterest/src/models.dart';
 import 'package:pinterest/src/filters.dart';
 import 'package:pinterest/src/paths.dart';
+import 'package:pinterest/src/util.dart';
 
 class Section {
   static const Section _inst = Section._();
@@ -12,22 +15,7 @@ class Section {
   factory Section() => _inst;
 
   bool createSection(BoardInfo board, String title, [List<PinInfo> initialPins]) => throw UnsupportedError('Not yet implemented');
-  Future<List<SectionInfo>> getSectionsFromBoard(BoardInfo board, [String cursor]) => throw UnsupportedError('Not yet implemented'); /*async {
-    final PinData pinData = await getJsonPinData<List<SectionInfo>>();
-
-    if (pinData != null) {
-      if (pinData.errorOccured) {
-        return pinData as PinErrorData;
-      } else {
-        final PinRootData pinRootData = pinData as PinRootData;
-        return PinResult(
-          successData: List<SectionInfo>.generate(pinRootData.data.length, (int index) => SectionInfo.fromString(pinRootData.data[index]))
-        );
-      }
-    } else {
-      return PinResult.empty();
-    }
-  }*/
+  Future<List<SectionInfo>> getSectionsFromBoard(BoardInfo board, [String cursor]) => throw UnsupportedError('Not yet implemented');
   bool removeSection(SectionInfo section) => throw UnsupportedError('Not yet implemented');
   List<PinInfo> getPinsFromSection(SectionInfo section, [String cursor]) => throw UnsupportedError('Not yet implemented');
 }
@@ -63,21 +51,14 @@ class Me {
 
   factory Me() => _inst;
 
-  ///Return the logged in user's information
-  Future<PinData> getMyInfo(String path, [List<FieldData> fields]) async {
+  //Return the logged in user's information
+  Future<UserInfo> getMyInfo([List<FieldData> fields]) async {
     filterFields(ME_GET_MY_INFO_CODE, fields);
 
-    // final PinData pinData = await getJsonPinData<UserInfo>(PATH_ME, fields);
-    final PinData pinData = await getFakeJsonPinData<UserInfo>(path);
+    final message = await getJsonPinData(PATH_ME, fields);
 
-    if (pinData != null) {
-      if (pinData.errorOccured) {
-        return pinData as PinErrorData;
-      } else {
-        return pinData as UserInfo;
-      }
-    } else {
-      return null;
+    if (message.status != HttpStatus.ok) {
+      throw PinException(message.status, message.);
     }
   }
 
