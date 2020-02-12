@@ -2,9 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:pinterest/src/fields.dart';
-import 'package:pinterest/src/models.dart';
-import 'package:pinterest/src/pin_func.dart';
-import 'package:pinterest/src/util.dart';
+import 'package:pinterest/src/functions.dart';
 
 const String TOKEN_TYPE = 'bearer';
 

@@ -1,12 +1,12 @@
-abstract class IEncodable<T> {
-  T encode();
+abstract class IEncodable {
+  Map<String, dynamic> encode();
 }
 
 abstract class IDecodable<T> {
   void decode(T json);
 }
 
-abstract class AJsonData<T> implements IEncodable<T>, IDecodable<T> {
+abstract class AJsonData<T> implements IEncodable, IDecodable<T> {
   const AJsonData();
 
   @override
@@ -18,6 +18,9 @@ class JsonProperty<T> {
   final T value;
 
   const JsonProperty(this.name, this.value);
+
+  @override
+  String toString() => '"$name":"$value" (${value.runtimeType})';
 }
 
 class PinException implements Exception {

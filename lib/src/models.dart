@@ -100,8 +100,8 @@ class BoardInfo extends AJsonData<Map<String, dynamic>> {
     _createdAt = decoder.getAndParse<String, DateTime>('created_at', (String value) => DateTime.tryParse(value));
     _counts = decoder.getAndParse<Map<String, dynamic>, PinCounts>('counts', (Map<String, dynamic> value) => PinCounts()..decode(value));
     _image = decoder.getAndParse<Map<String, dynamic>, PinImageCollection>('image', (Map<String, dynamic> value) => PinImageCollection()..decode(value));
-    _privacy = decoder.getAndParse<String, PinPrivacy>('privacy', (String value) => PinPrivacy.fromString(value));
-    _reason = decoder.getAndParse<String, PinReason>('reason', (String value) => PinReason.fromString(value));
+    _privacy = decoder.getAndParse<String, PinPrivacy>('privacy', (String value) => PinPrivacy()..decode(value));
+    _reason = decoder.getAndParse<String, PinReason>('reason', (String value) => PinReason()..decode(value));
   }
 
   @override
@@ -232,8 +232,14 @@ class UserInfo extends AJsonData<Map<String, dynamic>> {
   Map<String, dynamic> encode() => encodeValues([_username, _bio, _firstName, _lastName, _accountType, _url, _createdAt, _image, _counts, _id]);
 }
 
-class PinAttribution {
+class PinAttribution extends AJsonData<dynamic> {
   const PinAttribution();
+
+  @override
+  void decode(dynamic json) => null;
+
+  @override
+  Map<String, dynamic> encode() => null;
 }
 
 class PinCreator extends AJsonData<Map<String, dynamic>> {
@@ -376,130 +382,120 @@ class PinMedia extends AJsonData<Map<String, dynamic>> {
 }
 
 class PinMediaType extends AJsonData<String> {
-  static const PinMediaType IMAGE = PinMediaType._('image');
+  static final PinMediaType IMAGE = PinMediaType._('image');
 
-  final String _type;
+  String _type;
 
-  const PinMediaType._(this._type) : super();
+  PinMediaType();
+  PinMediaType._(this._type);
 
   @override
   void decode(String value) {
-    if (value == null) return null;
     switch (value) {
-      case 'image': return IMAGE;
-      default: return null;
+      case 'image': _type = IMAGE._type; break;
     }
   }
 
   @override
-  String encode() => const '';
+  Map<String, dynamic> encode() => {
+    'type': _type
+  };
 }
 
-class PinMetadata {
-  final JsonProperty<PinMetadataLink> link;
+class PinMetadata extends AJsonData<Map<String, dynamic>> {
+  JsonProperty<PinMetadataLink> _link;
 
-  const PinMetadata._(
-    this.link
-  );
+  PinMetadata([
+    this._link
+  ]);
 
-  factory PinMetadata()..decode(Map<String, dynamic> json) {
+  @override
+  void decode(Map<String, dynamic> json) {
     final decoder = JsonDecoder(json);
 
-    final JsonProperty<Map<String, String>> linkMap = decoder.getAndCast<Map<String, String>>('link');
-    final JsonProperty<PinMetadataLink> link = linkMap != null ? linkMap.getAndParse<PinMetadataLink>((Map<String, String> map) => PinMetadataLink()..decode(map)) : null;
-
-    return PinMetadata._(link);
+    _link = decoder.getAndParse<Map<String, dynamic>, PinMetadataLink>('link', (Map<String, dynamic> value) => PinMetadataLink()..decode(value));
   }
-}
-
-class PinMetadataLink {
-  const PinMetadataLink();
-
-  factory PinMetadataLink()..decode(Map<String, String> json) {
-    return null;
-  }
-}
-
-class PinPage {
-  final String cursor;
-  final Uri next;
-
-  const PinPage._(
-    this.cursor,
-    this.next
-  );
-
-  factory PinPage()..decode(Map<String, dynamic> json) {
-    final cursor = json['cursor'] as String;
-
-    final nextString = json['next'] as String;
-    final next = nextString != null ? Uri.tryParse(nextString) : null;
-
-    return PinPage._(cursor, next);
-  }
-
-  Map<String, dynamic> toJson() => <String, dynamic>{
-    'cursor': cursor,
-    'next': next
-  };
 
   @override
-  String toString() {
-    final buffer = StringBuffer();
-
-    buffer.writeln('cursor = ${cursor}');
-    buffer.writeln('next = ${next}');
-
-    return buffer.toString();
-  }
+  Map<String, dynamic> encode() => encodeValues([_link]);
 }
 
-class PinPrivacy {
-  static const PinPrivacy PUBLIC = PinPrivacy._('public');
-  static const PinPrivacy PRIVATE = PinPrivacy._('private');
+class PinMetadataLink extends AJsonData<Map<String, dynamic>> {
+  PinMetadataLink();
 
-  final String privacy;
+  @override
+  void decode(Map<String, dynamic> json) => null;
 
-  const PinPrivacy._(
-    this.privacy
-  );
+  @override
+  Map<String, dynamic> encode() => null;
+}
 
-  factory PinPrivacy.fromString(String privacy) {
-    switch (privacy) {
-      case 'public': return PUBLIC;
-      case 'private': return PRIVATE;
-      default: return null;
+class PinPage extends AJsonData<Map<String, dynamic>> {
+  JsonProperty<String> _cursor;
+  JsonProperty<Uri> _next;
+
+  PinPage([
+    this._cursor,
+    this._next
+  ]);
+
+  String get cursor => _cursor?.value;
+  Uri get next => _next?.value;
+
+  @override
+  void decode(Map<String, dynamic> json) {
+    final decoder = JsonDecoder(json);
+
+    _cursor = decoder.getAndCast<String>('cursor');
+    _next = decoder.getAndParse<String, Uri>('next', (String value) => Uri.tryParse(value));
+  }
+
+  @override
+  Map<String, dynamic> encode() => encodeValues([_cursor, _next]);
+}
+
+class PinPrivacy extends AJsonData<String> {
+  static final PinPrivacy PUBLIC = PinPrivacy._('public');
+  static final PinPrivacy PRIVATE = PinPrivacy._('private');
+
+  String _privacy;
+
+  PinPrivacy();
+  PinPrivacy._(this._privacy);
+
+  @override
+  void decode(String value) {
+    switch (value) {
+      case 'public': _privacy = PUBLIC._privacy; break;
+      case 'private': _privacy = PRIVATE._privacy; break;
     }
   }
 
-  Map<String, String> toJson() => <String, String>{
-    'privacy': privacy
-  };
-
   @override
-  String toString() => privacy;
+  Map<String, dynamic> encode() => {
+    'privacy': _privacy
+  };
 }
 
-class PinReason {
-  static const PinReason RECENTLY_PICKED = PinReason._('Recently picked');
+class PinReason extends AJsonData<String> {
+  static final PinReason RECENTLY_PICKED = PinReason._('Recently picked');
 
-  final String reason;
+  String _reason;
 
-  const PinReason._(
-    this.reason
-  );
+  PinReason();
+  PinReason._([
+    this._reason
+  ]);
 
-  factory PinReason.fromString(String reason) {
+  @override
+  void decode(String reason) {
     switch (reason) {
-      case 'Recently picked': return RECENTLY_PICKED;
-      default: return null;
+      case 'Recently picked': _reason = RECENTLY_PICKED._reason; return;
     }
   }
 
-  Map<String, String> toJson() => <String, String>{
-    'reason': reason
-  };
-
   @override
-  String toString() => reason;
+  Map<String, dynamic> encode() => {
+    'reason': _reason
+  };
 }

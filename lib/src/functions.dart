@@ -1,8 +1,8 @@
 import 'package:pinterest/src/fields.dart';
-import 'package:pinterest/src/pinterest_base.dart';
+import 'package:pinterest/src/core.dart';
 import 'package:pinterest/src/models.dart';
-import 'package:pinterest/src/pin_filters.dart';
-import 'package:pinterest/src/pin_paths.dart';
+import 'package:pinterest/src/filters.dart';
+import 'package:pinterest/src/paths.dart';
 
 class Section {
   static const Section _inst = Section._();
