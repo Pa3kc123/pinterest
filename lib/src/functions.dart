@@ -1,11 +1,11 @@
 import 'dart:html';
 
-import 'package:pinterest/src/fields.dart';
-import 'package:pinterest/src/core.dart';
-import 'package:pinterest/src/models.dart';
-import 'package:pinterest/src/filters.dart';
-import 'package:pinterest/src/paths.dart';
-import 'package:pinterest/src/util.dart';
+import 'core.dart';
+import 'fields.dart';
+import 'filters.dart';
+import 'models.dart';
+import 'paths.dart';
+import 'util.dart';
 
 class Section {
   static const Section _inst = Section._();
@@ -57,8 +57,8 @@ class Me {
 
     final message = await getJsonPinData(PATH_ME, fields);
 
-    if (message.status != HttpStatus.ok) {
-      throw PinException(message.status, message.);
+    if (message.code != HttpStatus.ok) {
+      throw PinException(0, 0, 0);
     }
   }
 
@@ -66,26 +66,14 @@ class Me {
   Future<List<BoardInfo>> getMyBoards([List<FieldData> fields, int limit]) async {
     filterFields(ME_GET_MY_BOARDS_CODE, fields);
 
-    final List<PinData> pinDataList = await getJsonPinDataList<BoardInfo>(PATH_ME_BOARDS, fields);
-
-    if (pinDataList != null) {
-      return pinDataList;
-    } else {
-      return null;
-    }
+    final pinDataList = await getJsonPinData(PATH_ME_BOARDS, fields);
   }
 
   ///Return Board suggestions for the logged in user
   Future<List<BoardInfo>> getMySuggestion({int count, PinInfo pin, List<FieldData> fields}) async {
     filterFields(ME_GET_MY_SUGGESTION_CODE, fields);
 
-    final List<PinData> pinDataList = await getJsonPinDataList<BoardInfo>(PATH_ME_SUGGESTION, fields);
-
-    if (pinDataList != null) {
-      return pinDataList;
-    } else {
-      return null;
-    }
+    final pinDataList = await getJsonPinData(PATH_ME_SUGGESTION, fields);
   }
 
   ///Return the users that follow the logged in user
@@ -145,25 +133,13 @@ class Me {
   Future<List<BoardInfo>> getMyInterrests({String cursor, List<FieldData> fields}) async {
     filterFields(ME_GET_MY_INTERRESTS_CODE, fields);
 
-    final List<PinData> pinDataList = await getJsonPinDataList<BoardInfo>(PATH_ME_GET_MY_INTERRESTS, fields);
-
-    if (pinDataList != null) {
-      return pinDataList;
-    } else {
-      return null;
-    }
+    final pinDataList = await getJsonPinData(PATH_ME_GET_MY_INTERRESTS, fields);
   }
 
   Future<List<UserInfo>> getMyFollowings({String cursor, List<FieldData> fields}) async {
     filterFields(ME_GET_MY_FOLLOWINGS_CODE, fields);
 
-    final List<PinData> pinDataList = await getJsonPinDataList(PATH_ME_GET_MY_FOLLOWINGS, fields);
-
-    if (pinDataList != null) {
-      return pinDataList;
-    } else {
-      return null;
-    }
+    final pinDataList = await getJsonPinData(PATH_ME_GET_MY_FOLLOWINGS, fields);
   }
 
   bool followUser(UserInfo user) => throw UnsupportedError('Not yet implemented');
@@ -220,19 +196,9 @@ class User {
 
   factory User() => _inst;
 
-  Future<PinData> getUserInfo(String user, [List<FieldData> fields]) async {
+  Future<UserInfo> getUserInfo(String user, [List<FieldData> fields]) async {
     filterFields(USER_GET_USER_INFO_CODE, fields);
 
-    final PinData pinData = await getJsonPinData<UserInfo>('$PATH_USER/$user');
-
-    if (pinData != null) {
-      if (pinData.errorOccured) {
-        return pinData as PinErrorData;
-      } else {
-        return pinData as UserInfo;
-      }
-    } else {
-      return null;
-    }
+    final pinData = await getJsonPinData('$PATH_USER/$user');
   }
 }

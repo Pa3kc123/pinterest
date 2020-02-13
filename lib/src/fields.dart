@@ -1,5 +1,4 @@
-import 'package:pinterest/src/pinterest_base.dart';
-import 'package:pinterest/src/util.dart';
+import 'package:pinterest/src/core.dart';
 
 void filterFields(int funcCode, List<FieldData> fields) {
   if (requestAllFields) {
@@ -48,35 +47,33 @@ abstract class FieldData<T> implements _PinField<T> {
   static const FieldData URL           = UrlField();
   static const FieldData USERNAME      = UsernameField();
 
-  static FieldData<ConstCollection<ImageSize>> createIMAGE(Iterable<ImageSize> sizes) => ImageField(ConstCollection(sizes));
+  static FieldData<List<ImageSize>> createIMAGE(Iterable<ImageSize> sizes) => ImageField(sizes);
 
-  static const ConstCollection<FieldData> values = ConstCollection(
-    <FieldData>[
-      ACCOUNT_TYPE,
-      ATTRIBUTION,
-      BIO,
-      BOARD,
-      COLOR,
-      COUNTS,
-      CREATED_AT,
-      CREATOR,
-      DESCRIPTION,
-      FIRST_NAME,
-      ID,
-      IMAGE,
-      LAST_NAME,
-      LINK,
-      MEDIA,
-      METADATA,
-      NAME,
-      NOTE,
-      ORIGINAL_LINK,
-      PRIVACY,
-      REASON,
-      URL,
-      USERNAME
-    ]
-  );
+  static const List<FieldData> values = <FieldData>[
+    ACCOUNT_TYPE,
+    ATTRIBUTION,
+    BIO,
+    BOARD,
+    COLOR,
+    COUNTS,
+    CREATED_AT,
+    CREATOR,
+    DESCRIPTION,
+    FIRST_NAME,
+    ID,
+    IMAGE,
+    LAST_NAME,
+    LINK,
+    MEDIA,
+    METADATA,
+    NAME,
+    NOTE,
+    ORIGINAL_LINK,
+    PRIVACY,
+    REASON,
+    URL,
+    USERNAME
+  ];
 
   final String name;
   final int code;
@@ -108,7 +105,7 @@ class BioField extends FieldData<String> {
   const BioField() : super._('bio', 0x4);
 }
 
-class BoardField extends FieldData<ConstCollection<BoardField>> {
+class BoardField extends FieldData<List<BoardField>> {
   const BoardField() : super._('board', 0x8);
 }
 
@@ -153,8 +150,8 @@ class ImageSize {
   String toString() => this.value;
 }
 
-class ImageField extends FieldData<ConstCollection<ImageSize>> {
-  final ConstCollection<ImageSize> _sizes;
+class ImageField extends FieldData<List<ImageSize>> {
+  final List<ImageSize> _sizes;
 
   const ImageField([this._sizes]) : super._('image', 0x800);
 
