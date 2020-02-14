@@ -14,7 +14,7 @@ class GeneralError extends Iterable {
 
   const GeneralError._(this.code);
 
-  List<GeneralError> get values => const <GeneralError>[
+  List<GeneralError> get values => <GeneralError>[
     BAD_REQUEST,
     UNAUTHORIZED,
     NOT_FOUND,

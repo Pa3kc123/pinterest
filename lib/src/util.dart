@@ -1,3 +1,5 @@
+import 'core.dart';
+
 abstract class IEncodable {
   Map<String, dynamic> encode();
 }
@@ -10,7 +12,7 @@ abstract class AJsonData<T> implements IEncodable, IDecodable<T> {
   const AJsonData();
 
   @override
-  String toString() => encode().toString();
+  String toString() => log(this);
 }
 
 class JsonProperty<T> {
@@ -24,11 +26,16 @@ class JsonProperty<T> {
 }
 
 class PinException implements Exception {
-  final int errorCode;
-  final int limit;
-  final int remains;
+  final ResponseData _data;
+  final String _message;
 
-  const PinException(this.errorCode, this.limit, this.remains);
+  const PinException(this._data, [this._message]);
+
+  int get rateLimit => _data?.rateLimit;
+  int get rateRemaining => _data?.rateRemaining;
+  int get statusCode => _data?.statusCode;
+  Map<String, dynamic> get json => _data?.json;
+  String get optionalMessage => _message;
 }
 
 class JsonDecoder {
@@ -43,6 +50,32 @@ class JsonDecoder {
 
     return JsonProperty(property.name, parser?.call(property.value) ?? property.value as E);
   }
+}
+
+abstract class IFilter {
+  int get filter;
+}
+
+abstract class IPath {
+  String get path;
+}
+
+class Path implements IPath {
+  final String _path;
+
+  const Path(this._path);
+
+  @override
+  String get path => _path;
+}
+
+class PathWithFilter extends Path implements IFilter {
+  final int _filter;
+
+  const PathWithFilter(final String path, [this._filter]) : super(path);
+
+  @override
+  int get filter => _filter;
 }
 
 int tabs = 0;

@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'fields.dart';
 import 'functions.dart';
-import 'models.dart';
+import 'util.dart';
 
 const String TOKEN_TYPE = 'bearer';
 
@@ -22,16 +22,16 @@ const String SCOPE_READ_RELATIONSHIPS = 'read_relationships';
 //Use PATCH, POST and DELETE methods on a user’s follows and followers (on boards, users and interests).
 const String SCOPE_WRITE_RELATIONSHIPS = 'write_relationships';
 
-class MiniObject {
+class ResponseData {
   final int rateLimit;
   final int rateRemaining;
   final int statusCode;
   final Map<String, dynamic> json;
 
-  const MiniObject(this.rateLimit, this.rateRemaining, this.statusCode, this.json);
+  const ResponseData(this.rateLimit, this.rateRemaining, this.statusCode, this.json);
 }
 
-Future<MiniObject> _getSiteData(String path, [List<FieldData> fields, int limit]) async {
+Future<ResponseData> _getSiteData(String path, [List<FieldData> fields, int limit]) async {
   if (_accessToken == null) throw StateError('You need to set access token first');
 
   final _fields = <String, String>{
@@ -43,13 +43,26 @@ Future<MiniObject> _getSiteData(String path, [List<FieldData> fields, int limit]
   final uri = Uri.https(PINTEREST_HOSTNAME, '/v$PINTEREST_API_VERSION$path', _fields);
   final client = HttpClient();
 
+  HttpClientRequest request;
   HttpClientResponse response;
   try {
-    response = await (await client.getUrl(uri))?.close();
-  } on SocketException {
+    request = await client.getUrl(uri);
+    response = await request?.close();
+  } on Error catch (e) {
+    print(e);
+    rethrow;
+  } on Exception catch (e) {
+    print(e);
     rethrow;
   } finally {
     client?.close();
+  }
+
+  if (response.statusCode != HttpStatus.ok) {
+    final responseStream = await response.transform(const Utf8Decoder());
+    final responseBody = await responseStream.join();
+
+    throw PinException(ResponseData(-1, -1, response.statusCode, null), responseBody);
   }
 
   final rateLimitString = response.headers.value('X-Ratelimit-Limit');
@@ -58,24 +71,23 @@ Future<MiniObject> _getSiteData(String path, [List<FieldData> fields, int limit]
   final rateRemainingString = response.headers.value('X-Ratelimit-Remaining');
   final rateRemaining = rateRemainingString != null ? int.parse(rateRemainingString) : null;
 
-  final responseBody = await response.transform(const Utf8Decoder()).join();
-  final json = jsonDecode(responseBody);
+  final responseStream = await response.transform(const Utf8Decoder());
+  final responseBody = await responseStream.join();
+  final json = jsonDecode(responseBody) as Map<String, dynamic>;
 
-  return MiniObject(rateLimit, rateRemaining, response.statusCode, json);
+  return ResponseData(rateLimit, rateRemaining, response.statusCode, json);
 }
 
-Future<PinterestMessage> getJsonPinData(PinterestPath path, [List<FieldData> fields, int limit]) async {
-  MiniObject obj;
+Future<ResponseData> getJsonPinData(IPath path, [List<FieldData> fields, int limit]) async {
+  ResponseData data;
 
   try {
-    obj = await _getSiteData(path, fields, limit);
+    data = await _getSiteData(path.path, fields, limit);
   } on StateError {
     rethrow;
   }
 
-  if (obj?.json == null) return null;
-
-  return PinterestMessage()..decode(obj.json);
+  return data;
 }
 
 /*Future<PinData> postJsonPinData(String path, Map<String, dynamic> data, [List<FieldData> fields]) async {

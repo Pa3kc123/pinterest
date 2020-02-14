@@ -1,16 +1,22 @@
-import 'package:pinterest/src/core.dart';
+import 'core.dart';
+import 'util.dart';
 
-void filterFields(int funcCode, List<FieldData> fields) {
+void filterFields(IFilter filter, List<FieldData> fields) {
+  if (filter == null) return;
+
+  final funcCode = filter.filter;
+
   if (requestAllFields) {
-    final List<FieldData> list = List<FieldData>();
-    for (FieldData fieldData in FieldData.values) {
+    final list = <FieldData>[];
+
+    for (final fieldData in FieldData.values) {
       if (fieldData.code & funcCode == 1) {
         list.add(fieldData);
       }
     }
   } else {
     if (fields == null) return;
-    for (int i = 0; i < fields.length; i++) {
+    for (var i = 0; i < fields.length; i++) {
       if ((fields[i].code & funcCode) == 0) {
         fields.removeAt(i--);
       }
@@ -81,16 +87,16 @@ abstract class FieldData<T> implements _PinField<T> {
   const FieldData._(this.name, this.code);
 
   @override
-  String parse() => this.name;
+  String parse() => name;
 
   @override
-  String toString() => this.name;
+  String toString() => name;
 
   @override
-  int get hashCode => this.code;
+  int get hashCode => code;
 
   @override
-  bool operator ==(Object obj) => obj != null && obj is FieldData && obj.code == this.code;
+  bool operator ==(Object obj) => obj is FieldData && obj.code == code;
 }
 
 class AccountTypeField extends FieldData<String> {
@@ -147,7 +153,7 @@ class ImageSize {
   const ImageSize._(this.value);
 
   @override
-  String toString() => this.value;
+  String toString() => value;
 }
 
 class ImageField extends FieldData<List<ImageSize>> {
@@ -156,7 +162,7 @@ class ImageField extends FieldData<List<ImageSize>> {
   const ImageField([this._sizes]) : super._('image', 0x800);
 
   @override
-  String parse() => this._sizes == null ? super.name : '${super.name}[${this._sizes.toString().substring(1, this._sizes.length - 1)}]';
+  String parse() => _sizes == null ? super.name : '${super.name}[${_sizes.toString().substring(1, _sizes.length - 1)}]';
 }
 
 class LastNameField extends FieldData<dynamic> {

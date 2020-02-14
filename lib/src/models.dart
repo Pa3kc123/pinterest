@@ -1,9 +1,9 @@
 import 'util.dart';
 
-class PinterestMessage extends AJsonData<Map<String, dynamic>> {
+class PinterestMessage<T> extends AJsonData<Map<String, dynamic>> {
   JsonProperty<String> _status;
   JsonProperty<int> _code;
-  JsonProperty<Map<String, dynamic>> _data;
+  JsonProperty<T> _data;
   JsonProperty<String> _message;
   JsonProperty<String> _type;
 
@@ -16,10 +16,10 @@ class PinterestMessage extends AJsonData<Map<String, dynamic>> {
   ]);
 
   String get status => _status?.value;
-  int get code => _code?.value;
-  Map<String, dynamic> get data => _data?.value;
+  int get statusCode => _code?.value;
+  T get data => _data?.value;
   String get message => _message?.value;
-  String get type=> _type?.value;
+  String get type => _type?.value;
 
   @override
   void decode(Map<String, dynamic> json) {
@@ -29,7 +29,7 @@ class PinterestMessage extends AJsonData<Map<String, dynamic>> {
 
     _status = decoder.getAndCast<String>('status');
     _code = decoder.getAndCast<int>('code');
-    _data = decoder.getAndCast<Map<String, dynamic>>('data');
+    _data = decoder.getAndCast<T>('data');
     _message = decoder.getAndCast<String>('message');
     _type = decoder.getAndCast<String>('type');
   }
