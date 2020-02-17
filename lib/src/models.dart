@@ -232,11 +232,11 @@ class UserInfo extends AJsonData<Map<String, dynamic>> {
 
     _username = decoder.getAndCast<String>('username');
     _bio = decoder.getAndCast<String>('bio');
-    _firstName = decoder.getAndCast<String>('firstName');
-    _lastName = decoder.getAndCast<String>('lastName');
-    _accountType = decoder.getAndCast<String>('accountType');
+    _firstName = decoder.getAndCast<String>('first_name');
+    _lastName = decoder.getAndCast<String>('last_name');
+    _accountType = decoder.getAndCast<String>('account_type');
     _url = decoder.getAndParse<String, Uri>('url', (String value) => Uri.tryParse(value));
-    _createdAt = decoder.getAndParse<String, DateTime>('createdAt', (String value) => DateTime.tryParse(value));
+    _createdAt = decoder.getAndParse<String, DateTime>('created_at', (String value) => DateTime.tryParse(value));
     _image = decoder.getAndParse<Map<String, dynamic>, PinImageCollection>('image', (Map<String, dynamic> value) => PinImageCollection()..decode(value));
     _counts = decoder.getAndParse<Map<String, dynamic>, PinCounts>('counts', (Map<String, dynamic> value) => PinCounts()..decode(value));
     _id = decoder.getAndCast<String>('id');
@@ -364,9 +364,10 @@ class PinImageCollection extends AJsonData<Map<String, dynamic>> {
     final decoder = JsonDecoder(json);
     _collection = List<JsonProperty<PinImage>>(json.keys.length);
 
-    json.keys.forEach((String key) => _collection.add(
-      decoder.getAndParse<Map<String, dynamic>, PinImage>(key, (Map<String, dynamic> value) => PinImage()..decode(value)))
-    );
+    var i = 0;
+    for (final key in json.keys) {
+      _collection[i] = decoder.getAndParse<Map<String, dynamic>, PinImage>(key, (Map<String, dynamic> value) => PinImage()..decode(value));
+    }
   }
 
   PinImage operator [](int index) => _collection[index]?.value;
@@ -375,9 +376,6 @@ class PinImageCollection extends AJsonData<Map<String, dynamic>> {
   bool get isNotEmpty => _collection?.isNotEmpty ?? false;
 
   PinImage get first => _collection[0]?.value;
-
-  @override
-  String toString() => _collection?.toString();
 
   @override
   Map<String, dynamic> encode() => encodeValues(_collection);

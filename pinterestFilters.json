@@ -1,0 +1,256 @@
+[
+  {
+    "category": "section",
+    "filters": {
+      "get_sections_for_board_filter": null,
+      "create_new_board_section_filter": null,
+      "delete_board_section_filter": null,
+      "get_pins_for_board_section_filter": null
+    }
+  },
+  {
+    "category": "board",
+    "filters": {
+      "create_board_filter": [
+        "counts",
+        "created_at",
+        "description",
+        "id",
+        "image",
+        "name",
+        "privacy",
+        "reason",
+        "url"
+      ],
+      "remove_board_filter": null,
+      "edit_board_filter": [
+        "counts",
+        "created_at",
+        "description",
+        "id",
+        "image",
+        "name",
+        "privacy",
+        "reason",
+        "url"
+      ],
+      "get_board_info_filter": [
+        "counts",
+        "created_at",
+        "description",
+        "id",
+        "image",
+        "name",
+        "privacy",
+        "reason",
+        "url"
+      ],
+      "get_pins_from_board_filter": [
+        "attribution",
+        "board",
+        "color",
+        "counts",
+        "created_at",
+        "id",
+        "image",
+        "link",
+        "media",
+        "metadata",
+        "note",
+        "original_link",
+        "url"
+      ]
+    }
+  },
+  {
+    "category": "me",
+    "filters": {
+      "get_my_info_filter": [
+        "account_type",
+        "bio",
+        "counts",
+        "created_at",
+        "first_name",
+        "id",
+        "image",
+        "last_name",
+        "url",
+        "username"
+      ],
+      "get_my_boards_filter": [
+        "counts",
+        "created_at",
+        "description",
+        "id",
+        "image",
+        "name",
+        "privacy",
+        "reason",
+        "url"
+      ],
+      "get_my_suggestions_filter": [
+        "counts",
+        "created_at",
+        "description",
+        "id",
+        "image",
+        "name",
+        "privacy",
+        "reason",
+        "url"
+      ],
+      "get_my_followers_filter": [
+        "account_type",
+        "bio",
+        "counts",
+        "created_at",
+        "first_name",
+        "id",
+        "image",
+        "last_name",
+        "url",
+        "username"
+      ],
+      "get_follwing_boards_filter": [
+        "counts",
+        "created_at",
+        "description",
+        "id",
+        "image",
+        "name",
+        "privacy",
+        "reason",
+        "url"
+      ],
+      "follow_board_filter": null,
+      "unfollow_board_filter": null,
+      "get_my_interrests_filter": [
+        "id",
+        "name"
+      ],
+      "get_my_followings_filter": [
+        "account_type",
+        "bio",
+        "counts",
+        "created_at",
+        "first_name",
+        "id",
+        "image",
+        "last_name",
+        "url",
+        "username"
+      ],
+      "follow_user_filter": null,
+      "unfollow_user_filter": null,
+      "get_my_pins_filter": [
+        "attribution",
+        "board",
+        "color",
+        "counts",
+        "created_at",
+        "id",
+        "image",
+        "link",
+        "media",
+        "metadata",
+        "note",
+        "original_link",
+        "url"
+      ],
+      "get_searched_boards_filter": [
+        "counts",
+        "created_at",
+        "description",
+        "id",
+        "image",
+        "name",
+        "privacy",
+        "reason",
+        "url"
+      ],
+      "get_searched_pins_filter": [
+        "attribution",
+        "board",
+        "color",
+        "counts",
+        "created_at",
+        "id",
+        "image",
+        "link",
+        "media",
+        "metadata",
+        "note",
+        "original_link",
+        "url"
+      ]
+    }
+  },
+  {
+    "category": "pin",
+    "filters": {
+      "create_pin": [
+        "attribution",
+        "board",
+        "color",
+        "counts",
+        "created_at",
+        "id",
+        "image",
+        "link",
+        "media",
+        "metadata",
+        "note",
+        "original_link",
+        "url"
+      ],
+      "delete_pin": null,
+      "edit_pin": [
+        "attribution",
+        "board",
+        "color",
+        "counts",
+        "created_at",
+        "id",
+        "image",
+        "link",
+        "media",
+        "metadata",
+        "note",
+        "original_link",
+        "url"
+      ],
+      "get_pin": [
+        "attribution",
+        "board",
+        "color",
+        "counts",
+        "created_at",
+        "id",
+        "image",
+        "link",
+        "media",
+        "metadata",
+        "note",
+        "original_link",
+        "url"
+      ]
+    }
+  },
+  {
+    "category": "user",
+    "filters": {
+      "get_user_info_filter": [
+        "account_type",
+        "bio",
+        "counts",
+        "created_at",
+        "first_name",
+        "id",
+        "image",
+        "last_name",
+        "url",
+        "username"
+      ]
+    }
+  }
+]

@@ -31,6 +31,64 @@ class ResponseData {
   const ResponseData(this.rateLimit, this.rateRemaining, this.statusCode, this.json);
 }
 
+Future<HttpClientResponse> _getFromApi(final Uri url) async {
+  if (url == null) return null;
+
+  final client = HttpClient();
+
+  HttpClientRequest request;
+  HttpClientResponse response;
+  try {
+    request = await client.getUrl(url);
+    response = await request?.close();
+
+    if (response.statusCode == HttpStatus.permanentRedirect) {
+      final redirectUrlString = response.headers.value('Location');
+      if (redirectUrlString != null) {
+        final _url = Uri.tryParse(redirectUrlString);
+        return _getFromApi(_url);
+      }
+    }
+
+    return response;
+  } catch (e) {
+    print(e);
+    rethrow;
+  } finally {
+    client?.close();
+  }
+}
+
+Future<HttpClientResponse> _postToApi(final Uri url) async {
+  if (url == null) return null;
+
+  final client = HttpClient();
+
+  HttpClientRequest request;
+  HttpClientResponse response;
+  try {
+    request = await client.postUrl(url);
+
+
+    response = await request?.close();
+
+    if (response.statusCode == HttpStatus.permanentRedirect) {
+      final redirectUrlString = response.headers.value('Location');
+      if (redirectUrlString != null) {
+        final _url = Uri.tryParse(redirectUrlString);
+        return _getFromApi(_url);
+      }
+    }
+
+    return response;
+  } catch (e) {
+    print(e);
+    rethrow;
+  } finally {
+    client?.close();
+  }
+}
+
 Future<ResponseData> _getSiteData(String path, [List<FieldData> fields, int limit]) async {
   if (_accessToken == null) throw StateError('You need to set access token first');
 
@@ -40,91 +98,60 @@ Future<ResponseData> _getSiteData(String path, [List<FieldData> fields, int limi
     if (limit != null) 'limit': limit.toString()
   };
 
-  final uri = Uri.https(PINTEREST_HOSTNAME, '/v$PINTEREST_API_VERSION$path', _fields);
-  final client = HttpClient();
+  final url = Uri.https(PINTEREST_HOSTNAME, '/v$PINTEREST_API_VERSION$path', _fields);
+  final response = await _getFromApi(url);
 
-  HttpClientRequest request;
-  HttpClientResponse response;
-  try {
-    request = await client.getUrl(uri);
-    response = await request?.close();
-  } on Error catch (e) {
-    print(e);
-    rethrow;
-  } on Exception catch (e) {
-    print(e);
-    rethrow;
-  } finally {
-    client?.close();
-  }
+  final responseBody = await response?.transform(const Utf8Decoder())?.join();
 
   if (response.statusCode != HttpStatus.ok) {
-    final responseStream = await response.transform(const Utf8Decoder());
-    final responseBody = await responseStream.join();
-
-    throw PinException(ResponseData(-1, -1, response.statusCode, null), responseBody);
+    switch (response.statusCode) {
+      default:
+        throw PinException(ResponseData(-1, -1, response.statusCode, null), responseBody);
+      break;
+    }
   }
 
-  final rateLimitString = response.headers.value('X-Ratelimit-Limit');
-  final rateLimit = rateLimitString != null ? int.parse(rateLimitString) : null;
+  int rateLimit, rateRemaining;
+  {
+    final headerDecoder = HttpHeaderDecoder(response.headers);
 
-  final rateRemainingString = response.headers.value('X-Ratelimit-Remaining');
-  final rateRemaining = rateRemainingString != null ? int.parse(rateRemainingString) : null;
+    rateLimit = headerDecoder.getAndParse<int>('X-Ratelimit-Limit', (String value) => int.parse(value));
+    rateRemaining = headerDecoder.getAndParse<int>('X-Ratelimit-Remaining', (String value) => int.parse(value));
+  }
 
-  final responseStream = await response.transform(const Utf8Decoder());
-  final responseBody = await responseStream.join();
   final json = jsonDecode(responseBody) as Map<String, dynamic>;
 
   return ResponseData(rateLimit, rateRemaining, response.statusCode, json);
 }
 
-Future<ResponseData> getJsonPinData(IPath path, [List<FieldData> fields, int limit]) async {
-  ResponseData data;
-
-  try {
-    data = await _getSiteData(path.path, fields, limit);
-  } on StateError {
-    rethrow;
-  }
-
-  return data;
-}
-
-/*Future<PinData> postJsonPinData(String path, Map<String, dynamic> data, [List<FieldData> fields]) async {
+Future<ResponseData> _postSiteData(String path, [List<FieldData> fields, int limit]) async {
   if (_accessToken == null) throw StateError('You need to set access token first');
 
-  final Map<String, String> _fields = <String, String>{
+  final _fields = <String, String>{
     'access_token': _accessToken,
-    if (fields != null) 'fields': fields.join(',')
+    if (fields != null) 'fields': fields.join(','),
+    if (limit != null) 'limit': limit.toString()
   };
 
-  final Uri uri = Uri.https(PINTEREST_HOSTNAME, '/v$PINTEREST_API_VERSION$path', _fields);
-  final HttpClient client = HttpClient();
+  final url = Uri.https(PINTEREST_HOSTNAME, '/v$PINTEREST_API_VERSION$path', _fields);
+  final response = _postToApi();
+}
 
-  HttpClientResponse response;
+Future<ResponseData> getJsonPinData(IPath path, [List<FieldData> fields, int limit]) async {
   try {
-    final HttpClientRequest request = await client.postUrl(uri);
-    request.write(data);
-    response = await request.close();
-  } on SocketException {
+    return await _getSiteData(path.path, fields, limit);
+  } catch(e) {
     rethrow;
-  } finally {
-    client?.close();
   }
+}
 
-  final String rateLimitString = response.headers.value('X-Ratelimit-Limit');
-  final int rateLimit = rateLimitString != null ? int.parse(rateLimitString) : null;
-
-  final String rateRemainingString = response.headers.value('X-Ratelimit-Remaining');
-  final int rateRemaining = rateRemainingString != null ? int.parse(rateRemainingString) : null;
-
-  final String responseBody = await response.transform(utf8.decoder).join();
-  final Map<String, dynamic> json = jsonDecode(responseBody);
-
-  if (json == null) return null;
-
-  return response.statusCode == HttpStatus.ok ? PinData.fromJson(json, rateLimit, rateRemaining) : PinErrorData.fromJson(json, response.statusCode, rateLimit, rateRemaining);
-}*/
+Future<ResponseData> postJsonPinData(IPath path, [List<FieldData> fields, int limit]) async {
+  try {
+    return await _postSiteData(path.path, fields, limit);
+  } catch(e) {
+    rethrow;
+  }
+}
 
 Section get section => Section();
 Board get board => Board();
@@ -136,4 +163,4 @@ String get accessToken => _accessToken;
 bool get requestAllFields => _requestAllFields;
 
 set accessToken(String value) => _accessToken = value;
-set requestAllFields(bool value) => _requestAllFields = value ?? _requestAllFields;
+set requestAllFields(bool value) => _requestAllFields = (value ?? _requestAllFields);

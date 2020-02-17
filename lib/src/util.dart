@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'core.dart';
 
+//Models
 abstract class IEncodable {
   Map<String, dynamic> encode();
 }
@@ -15,16 +18,21 @@ abstract class AJsonData<T> implements IEncodable, IDecodable<T> {
   String toString() => log(this);
 }
 
-class JsonProperty<T> {
-  final String name;
-  final T value;
+Map<String, dynamic> encodeValues(List<JsonProperty<dynamic>> values) {
+  final map = <String, dynamic>{};
 
-  const JsonProperty(this.name, this.value);
+  for (var value in values) {
+    if (value != null) {
+      map[value.name] = value.value;
+    } else {
+      continue;
+    }
+  }
 
-  @override
-  String toString() => '"$name":"$value" (${value.runtimeType})';
+  return map;
 }
 
+//Exceptions
 class PinException implements Exception {
   final ResponseData _data;
   final String _message;
@@ -38,6 +46,17 @@ class PinException implements Exception {
   String get optionalMessage => _message;
 }
 
+//Json decoding
+class JsonProperty<T> {
+  final String name;
+  final T value;
+
+  const JsonProperty(this.name, this.value);
+
+  @override
+  String toString() => '"$name":"$value" (${value.runtimeType})';
+}
+
 class JsonDecoder {
   final Map<String, dynamic> json;
 
@@ -48,10 +67,28 @@ class JsonDecoder {
   JsonProperty<E> getAndParse<T, E>(String name, E Function(T value) parser) {
     final property = getAndCast<T>(name);
 
-    return JsonProperty(property.name, parser?.call(property.value) ?? property.value as E);
+    E result;
+    if (property.value != null) {
+      result = parser?.call(property.value) ?? property.value as E;
+    }
+
+    return JsonProperty(property.name, result);
   }
 }
 
+//Http header helper
+class HttpHeaderDecoder {
+  final HttpHeaders headers;
+
+  const HttpHeaderDecoder(this.headers);
+
+  T getAndParse<T>(final String headerName, T Function(String value) parser) {
+    final header = headers.value(headerName);
+    return header != null ? parser?.call(header) : null;
+  }
+}
+
+//Pathing
 abstract class IFilter {
   int get filter;
 }
@@ -78,38 +115,29 @@ class PathWithFilter extends Path implements IFilter {
   int get filter => _filter;
 }
 
-int tabs = 0;
+//Util
+int _tabs = 0;
 String log(IEncodable parser) {
   final buffer = StringBuffer();
 
   final map = parser.encode();
 
   buffer.writeln('{');
-  tabs++;
+  _tabs++;
 
   String tab;
   for (var key in map.keys) {
     tab = '';
 
-    for (var i = tabs * 2; i >= 1; i--) {
+    for (var i = _tabs * 2; i >= 1; i--) {
       tab += ' ';
     }
 
     buffer.writeln('$tab$key = ${map[key].toString()}');
   }
 
-  tabs--;
+  _tabs--;
   buffer.write('${tab.replaceRange(0, 2, "")}}');
 
   return buffer.toString();
-}
-
-Map<String, dynamic> encodeValues(List<JsonProperty<dynamic>> values) {
-  const map = <String, dynamic>{};
-
-  for (var value in values) {
-    map[value.name] = value.value;
-  }
-
-  return map;
 }

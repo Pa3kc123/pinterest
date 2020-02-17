@@ -1,8 +1,8 @@
 import 'core.dart';
 import 'util.dart';
 
-void filterFields(IFilter filter, List<FieldData> fields) {
-  if (filter == null) return;
+List<FieldData> filterFields(IFilter filter, List<FieldData> fields) {
+  if (filter?.filter == null && !requestAllFields) return fields;
 
   final funcCode = filter.filter;
 
@@ -10,25 +10,30 @@ void filterFields(IFilter filter, List<FieldData> fields) {
     final list = <FieldData>[];
 
     for (final fieldData in FieldData.values) {
-      if (fieldData.code & funcCode == 1) {
+      if (fieldData.code & filter.filter != 0) {
         list.add(fieldData);
       }
     }
+
+    return list;
   } else {
-    if (fields == null) return;
+    if (fields == null) return fields;
+
     for (var i = 0; i < fields.length; i++) {
       if ((fields[i].code & funcCode) == 0) {
         fields.removeAt(i--);
       }
     }
+
+    return fields;
   }
 }
 
-abstract class _PinField<T> {
+abstract class _IPinField<T> {
   String parse();
 }
 
-abstract class FieldData<T> implements _PinField<T> {
+abstract class FieldData<T> implements _IPinField<T> {
   static const FieldData ACCOUNT_TYPE  = AccountTypeField();
   static const FieldData ATTRIBUTION   = AttributionField();
   static const FieldData BIO           = BioField();

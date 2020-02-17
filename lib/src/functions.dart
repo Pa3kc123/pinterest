@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'core.dart';
 import 'fields.dart';
 import 'models.dart';
@@ -24,11 +26,11 @@ class Section {
 class Board {
   static const Board _inst = Board._();
 
-  static const CREATE_BOARD_PATH = PathWithFilter('/boards', 0x390de0);
+  static const CREATE_BOARD_PATH = PathWithFilter('/boards', 0x390d60);
   static const REMOVE_BOARD_PATH = Path('/boards/<board_spec:board>');
-  static const EDIT_BOARD_PATH = PathWithFilter('/boards/<board_spec:board>', 0x390de0);
-  static const GET_BOARD_INFO_PATH = PathWithFilter('/boards/<board_spec:board>', 0x390de0);
-  static const GET_PINS_FROM_BOARD_PATH = PathWithFilter('/boards/<board_spec:board>/pins', 0x26ecfa);
+  static const EDIT_BOARD_PATH = PathWithFilter('/boards/<board_spec:board>', 0x390d60);
+  static const GET_BOARD_INFO_PATH = PathWithFilter('/boards/<board_spec:board>', 0x390d60);
+  static const GET_PINS_FROM_BOARD_PATH = PathWithFilter('/boards/<board_spec:board>/pins', 0x26ec7a);
 
   const Board._();
 
@@ -55,19 +57,19 @@ class Me {
   static const Me _inst = Me._();
 
   static const GET_MY_INFO_PATH = PathWithFilter('/me', 0x601e65);
-  static const GET_MY_BOARDS_PATH = PathWithFilter('/me/boards', 0x390de0);
-  static const GET_MY_SUGGESTIONS_PATH = PathWithFilter('/me/boards/suggested', 0x390de0);
+  static const GET_MY_BOARDS_PATH = PathWithFilter('/me/boards', 0x390d60);
+  static const GET_MY_SUGGESTIONS_PATH = PathWithFilter('/me/boards/suggested', 0x390d60);
   static const GET_MY_FOLLOWERS_PATH = PathWithFilter('/me/followers', 0x601e65);
-  static const GET_FOLLWING_BOARDS_PATH = PathWithFilter('/me/following/boards', 0x390de0);
-  static const FOLLOW_BOARD_PATH = PathWithFilter('/me/following/boards', 0x390de0);
-  static const UNFOLLOW_BOARD_PATH = PathWithFilter('/me/following/boards/<board_spec:board>', 0x390de0);
+  static const GET_FOLLWING_BOARDS_PATH = PathWithFilter('/me/following/boards', 0x390d60);
+  static const FOLLOW_BOARD_PATH = Path('/me/following/boards');
+  static const UNFOLLOW_BOARD_PATH = Path('/me/following/boards/<board_spec:board>');
   static const GET_MY_INTERRESTS_PATH = PathWithFilter('/me/following/interests', 0x10400);
   static const GET_MY_FOLLOWINGS_PATH = PathWithFilter('/me/following/users', 0x601e65);
-  static const FOLLOW_USER_PATH = PathWithFilter('/me/following/users', 0x601e65);
-  static const UNFOLLOW_USER_PATH = PathWithFilter('/me/following/users/<user>', 0x601e65);
-  static const GET_MY_PINS_PATH = PathWithFilter('/me/pins', 0x26ecfa);
-  static const GET_SEARCHED_BOARDS_PATH = PathWithFilter('/me/search/boards', 0x390de0);
-  static const GET_SEARCHED_PINS_PATH = PathWithFilter('/me/search/pins', 0x26ecfa);
+  static const FOLLOW_USER_PATH = Path('/me/following/users');
+  static const UNFOLLOW_USER_PATH = Path('/me/following/users/<user>');
+  static const GET_MY_PINS_PATH = PathWithFilter('/me/pins', 0x26ec7a);
+  static const GET_SEARCHED_BOARDS_PATH = PathWithFilter('/me/search/boards', 0x390d60);
+  static const GET_SEARCHED_PINS_PATH = PathWithFilter('/me/search/pins', 0x26ec7a);
 
   const Me._();
 
@@ -75,29 +77,61 @@ class Me {
 
   //Return the logged in user's information
   Future<UserInfo> getMyInfo([List<FieldData> fields]) async {
-    filterFields(GET_MY_INFO_PATH, fields);
+    fields = filterFields(GET_MY_INFO_PATH, fields);
 
-    final data = await getJsonPinData(GET_MY_INFO_PATH, fields);
+    final response = await getJsonPinData(GET_MY_INFO_PATH, fields);
 
-    if (data.statusCode != 200) {
-      throw PinException(data);
+    if (response.statusCode != HttpStatus.ok) {
+      throw PinException(response);
     }
 
-    final msg = PinterestMessage<Map<String, dynamic>>()..decode(data.json);
+    final msg = PinterestMessage<Map<String, dynamic>>()..decode(response.json);
 
-    return msg.data as UserInfo;
+    return UserInfo()..decode(msg.data);
   }
 
   ///Return the logged in user's Boards
-  Future<List<BoardInfo>> getMyBoards([List<FieldData> fields, int limit]) async => throw UnsupportedError('Not yet implemented');
+  Future<List<BoardInfo>> getMyBoards([List<FieldData> fields, int limit]) async {
+    fields = filterFields(GET_MY_BOARDS_PATH, fields);
+
+    final response = await getJsonPinData(GET_MY_BOARDS_PATH, fields);
+
+    if (response.statusCode != HttpStatus.ok) {
+      throw PinException(response);
+    }
+
+    final list = List<BoardInfo>(response.json.length);
+
+    for (var i = 0; i < list.length; i++) {
+      list[i] = BoardInfo()..decode(response.json[i]);
+    }
+
+    return list;
+  }
 
   ///Return Board suggestions for the logged in user
-  Future<List<BoardInfo>> getMySuggestion({int count, PinInfo pin, List<FieldData> fields}) async => throw UnsupportedError('Not yet implemented');
+  Future<List<BoardInfo>> getMySuggestion({int count, PinInfo pin, List<FieldData> fields}) async {
+    final response = await getJsonPinData(GET_MY_SUGGESTIONS_PATH);
+
+    if (response.statusCode != HttpStatus.ok) {
+      throw PinException(response);
+    }
+
+    final list = List<BoardInfo>(response.json.length);
+
+    for (var i = 0; i < list.length; i++) {
+      list[i] = BoardInfo()..decode(response.json[i]);
+    }
+
+    return list;
+  }
 
   ///Return the users that follow the logged in user
   ///
   ///Note: Not working for some reason
-  Future<List<UserInfo>> getMyFollowers({String cursor, List<FieldData> fields}) async => throw UnsupportedError('Not yet implemented');
+  Future<List<UserInfo>> getMyFollowers({String cursor, List<FieldData> fields}) async {
+
+  }
 
   ///Note: Not working for some reason
   Future<List<BoardInfo>> getFollwingBoards({String cursor, List<FieldData> fields}) async => throw UnsupportedError('Not yet implemented');
@@ -124,10 +158,10 @@ class Me {
 class Pin {
   static const Pin _inst = Pin._();
 
-  static const CREATE_PIN = PathWithFilter('/pins', 0x26ecfa);
-  static const DELETE_PIN = Path('/pins/<pin_spec:pin>');
-  static const EDIT_PIN = PathWithFilter('/pins/<pin_spec:pin>', 0x26ecfa);
-  static const GET_PIN = PathWithFilter('/pins/<pin_spec:pin>', 0x26ecfa);
+  static const CREATE_PIN_PATH = PathWithFilter('/pins', 0x26ec7a);
+  static const DELETE_PIN_PATH = Path('/pins/<pin_spec:pin>');
+  static const EDIT_PIN_PATH = PathWithFilter('/pins/<pin_spec:pin>', 0x26ec7a);
+  static const GET_PIN_PATH = PathWithFilter('/pins/<pin_spec:pin>', 0x26ec7a);
 
   const Pin._();
 

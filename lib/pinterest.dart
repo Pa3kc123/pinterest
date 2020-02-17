@@ -9,4 +9,6 @@ export 'src/functions.dart';
 export 'src/fields.dart';
 export 'src/util.dart';
 
+export 'src/fake.dart';
+
 // TODO: Export any libraries intended for clients of this package.

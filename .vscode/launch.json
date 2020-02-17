@@ -8,7 +8,7 @@
             "name": "Dart",
             "program": "example/pinterest_example.dart",
             "args": [
-                "${workspaceFolder}/example/me_getUserInfo.json"
+                "${workspaceFolder}/example/me_getMyBoards.json"
             ],
             "request": "launch",
             "type": "dart"
