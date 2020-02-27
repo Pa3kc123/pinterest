@@ -12,8 +12,6 @@ abstract class IDecodable<T> {
 }
 
 abstract class AJsonData<T> implements IEncodable, IDecodable<T> {
-  const AJsonData();
-
   @override
   String toString() => log(this);
 }
@@ -102,9 +100,9 @@ class Path implements IPath {
   final String _path;
   final Map<String, String> _replacements;
 
-  const Path._(this._path, [this._replacements]);
+  const Path(this._path, [this._replacements]);
 
-  factory Path(String path) {
+  factory Path._(String path) {
     var replacements = <String, String>{};
 
     var startIndex = path.indexOf('<');
@@ -118,7 +116,7 @@ class Path implements IPath {
       }
     }
 
-    return Path._(path, replacements);
+    return Path(path, replacements);
   }
 
   @override
@@ -131,7 +129,7 @@ class Path implements IPath {
 class PathWithFilter extends Path implements IFilter {
   final int _filter;
 
-  const PathWithFilter(final String path, [this._filter]) : super._(path);
+  const PathWithFilter(final String path, [this._filter]) : super(path);
 
   @override
   int get filter => _filter;

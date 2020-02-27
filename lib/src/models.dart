@@ -1,3 +1,5 @@
+import 'package:pinterest/src/json_property_generator.dart';
+
 import 'util.dart';
 
 class PinterestMessage<T> extends AJsonData<Map<String, dynamic>> {
@@ -247,16 +249,25 @@ class UserInfo extends AJsonData<Map<String, dynamic>> {
 }
 
 class PinAttribution extends AJsonData<dynamic> {
-  const PinAttribution();
+  JsonProperty<dynamic> _value;
+
+  PinAttribution([
+    this._value
+  ]);
+
+  dynamic get value => _value?.value;
 
   @override
-  void decode(dynamic json) => null;
+  void decode(dynamic json) => _value = json;
 
   @override
-  Map<String, dynamic> encode() => null;
+  Map<String, dynamic> encode() => encodeValues([_value]);
 }
 
 class PinCreator extends AJsonData<Map<String, dynamic>> {
+  @AJsonProperty('url')
+  Uri url2;
+
   JsonProperty<Uri> _url;
   JsonProperty<String> _firstName;
   JsonProperty<String> _lastName;

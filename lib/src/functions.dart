@@ -19,6 +19,8 @@ class Section {
 
   bool createSection(BoardInfo board, String title, [List<PinInfo> initialPins]) => throw UnsupportedError('Not yet implemented');
   Future<List<SectionInfo>> getSectionsFromBoard(BoardInfo board, [String cursor]) async {
+    if (board == null) return null;
+
     final response = await getJsonPinData(
       CREATE_NEW_BOARD_SECTION_PATH,
       extraArgs: [ board.id ]
