@@ -18,7 +18,26 @@ class Section {
   factory Section() => _inst;
 
   bool createSection(BoardInfo board, String title, [List<PinInfo> initialPins]) => throw UnsupportedError('Not yet implemented');
-  Future<List<SectionInfo>> getSectionsFromBoard(BoardInfo board, [String cursor]) => throw UnsupportedError('Not yet implemented');
+  Future<List<SectionInfo>> getSectionsFromBoard(BoardInfo board, [String cursor]) async {
+    final response = await getJsonPinData(
+      CREATE_NEW_BOARD_SECTION_PATH,
+      extraArgs: [ board.id ]
+    );
+
+    if (response.statusCode != HttpStatus.ok) {
+      throw PinException(response);
+    }
+
+    final msg = PinterestMessage<Map<String, dynamic>>()..decode(response.json);
+
+    final list = List<SectionInfo>(msg.data.length);
+
+    for (var i = 0; i < list.length; i++) {
+      list[i] = SectionInfo()..decode(msg.data);
+    }
+
+    return list;
+  }
   bool removeSection(SectionInfo section) => throw UnsupportedError('Not yet implemented');
   List<PinInfo> getPinsFromSection(SectionInfo section, [String cursor]) => throw UnsupportedError('Not yet implemented');
 }
@@ -79,7 +98,10 @@ class Me {
   Future<UserInfo> getMyInfo([List<FieldData> fields]) async {
     fields = filterFields(GET_MY_INFO_PATH, fields);
 
-    final response = await getJsonPinData(GET_MY_INFO_PATH, fields);
+    final response = await getJsonPinData(
+      GET_MY_INFO_PATH,
+      fields: fields
+    );
 
     if (response.statusCode != HttpStatus.ok) {
       throw PinException(response);
@@ -94,7 +116,10 @@ class Me {
   Future<List<BoardInfo>> getMyBoards([List<FieldData> fields, int limit]) async {
     fields = filterFields(GET_MY_BOARDS_PATH, fields);
 
-    final response = await getJsonPinData(GET_MY_BOARDS_PATH, fields);
+    final response = await getJsonPinData(
+      GET_MY_BOARDS_PATH,
+      fields: fields
+    );
 
     if (response.statusCode != HttpStatus.ok) {
       throw PinException(response);
@@ -129,7 +154,10 @@ class Me {
   ///Return the users that follow the logged in user
   ///
   ///Note: Not working for some reason
-  Future<List<UserInfo>> getMyFollowers({String cursor, List<FieldData> fields}) async {
+  Future<List<UserInfo>> getMyFollowers({
+    String cursor,
+    List<FieldData> fields
+  }) async {
 
   }
 

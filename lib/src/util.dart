@@ -95,21 +95,43 @@ abstract class IFilter {
 
 abstract class IPath {
   String get path;
+  Map<String, String> get replacements;
 }
 
 class Path implements IPath {
   final String _path;
+  final Map<String, String> _replacements;
 
-  const Path(this._path);
+  const Path._(this._path, [this._replacements]);
+
+  factory Path(String path) {
+    var replacements = <String, String>{};
+
+    var startIndex = path.indexOf('<');
+    if (startIndex != -1) {
+      for (var endIndex = path.indexOf('>'); startIndex != -1 || endIndex != -1; startIndex = path.indexOf('<', endIndex), endIndex = path.indexOf('>', startIndex)) {
+        var tmpIndex = startIndex + 1;
+
+        if (tmpIndex < endIndex) continue;
+
+        replacements[path.substring(tmpIndex, endIndex)] = null;
+      }
+    }
+
+    return Path._(path, replacements);
+  }
 
   @override
   String get path => _path;
+
+  @override
+  Map<String, String> get replacements => _replacements;
 }
 
 class PathWithFilter extends Path implements IFilter {
   final int _filter;
 
-  const PathWithFilter(final String path, [this._filter]) : super(path);
+  const PathWithFilter(final String path, [this._filter]) : super._(path);
 
   @override
   int get filter => _filter;

@@ -134,10 +134,21 @@ Future<ResponseData> _postSiteData(String path, [List<FieldData> fields, int lim
   };
 
   final url = Uri.https(PINTEREST_HOSTNAME, '/v$PINTEREST_API_VERSION$path', _fields);
-  final response = _postToApi();
+  // final response = _postToApi(url);
+  final _ = _postToApi(url);
+
+  return Future.value(null);
 }
 
-Future<ResponseData> getJsonPinData(IPath path, [List<FieldData> fields, int limit]) async {
+Future<ResponseData> getJsonPinData(IPath path, {
+  List<FieldData> fields,
+  int limit,
+  List<String> extraArgs
+}) async {
+  if (extraArgs?.isEmpty ?? true && extraArgs.first == null) {
+    return Future.value(null);
+  }
+
   try {
     return await _getSiteData(path.path, fields, limit);
   } catch(e) {
