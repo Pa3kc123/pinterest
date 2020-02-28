@@ -1,5 +1,3 @@
-import 'package:pinterest/src/json_property_generator.dart';
-
 import 'util.dart';
 
 class PinterestMessage<T> extends AJsonData<Map<String, dynamic>> {
@@ -265,9 +263,6 @@ class PinAttribution extends AJsonData<dynamic> {
 }
 
 class PinCreator extends AJsonData<Map<String, dynamic>> {
-  @AJsonProperty('url')
-  Uri url2;
-
   JsonProperty<Uri> _url;
   JsonProperty<String> _firstName;
   JsonProperty<String> _lastName;

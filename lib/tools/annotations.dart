@@ -1,0 +1,3 @@
+class JsonData {
+  const JsonData();
+}

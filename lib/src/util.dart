@@ -46,10 +46,16 @@ class PinException implements Exception {
 
 //Json decoding
 class JsonProperty<T> {
-  final String name;
-  final T value;
+  String _name;
+  T _value;
 
-  const JsonProperty(this.name, this.value);
+  JsonProperty(this._name, this._value);
+
+  String get name => _name;
+  T get value => _value;
+
+  set name(String name) => _name = name;
+  set value(T value) => _value = value;
 
   @override
   String toString() => '"$name":"$value" (${value.runtimeType})';
