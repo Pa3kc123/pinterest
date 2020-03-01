@@ -1,15 +1,14 @@
 targets:
   $default:
     builders:
-      pinterest|a_json_property:
+      pinterest|json_property:
         generate_for:
           - lib/src/models.dart
 
 builders:
-  a_json_property:
+  json_property:
     import: "package:pinterest/builder.dart"
-    builder_factories: ["aJsonProperty"]
-    build_extensions: {".dart": ["models.g.dart"]}
+    builder_factories: ["jsonProperty"]
+    build_extensions: {".dart": [".g.dart"]}
     auto_apply: dependents
     build_to: source
-    applies_builders: ["source_gen|combining_builder"]

@@ -5,13 +5,22 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Dart",
+            "name": "Dart Main",
+            "type": "dart",
+            "request": "launch",
             "program": "example/pinterest_example.dart",
             "args": [
                 "${workspaceFolder}/example/me_getMyBoards.json"
-            ],
+            ]
+        },
+        {
+            "name": "Dart Generate",
+            "type": "dart",
             "request": "launch",
-            "type": "dart"
+            "program": ".dart_tool/build/entrypoint/build.dart",
+            "args": [
+                "build"
+            ]
         }
     ]
 }
